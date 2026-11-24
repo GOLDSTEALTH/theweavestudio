@@ -363,12 +363,28 @@ export const BESPOKE_OPTIONS = {
 
   palettes: [
     {
+      id: "ivory-champagne",
+      name: "Ivory & Champagne",
+      editorialLabel: "ATELIER LUMINOUS",
+      primaryHex: "#EFE9DD",
+      secondaryHex: "#C6A972",
+      narrative: "Luminous unbleached ivory blooms accented with brushed champagne gold fiber twists.",
+    },
+    {
       id: "obsidian-champagne",
       name: "Obsidian & Champagne",
-      editorialLabel: "ATELIER SIGNATURE",
+      editorialLabel: "ATELIER NOCTURNE",
       primaryHex: "#0A0A0B",
       secondaryHex: "#C6A972",
       narrative: "Deepest nocturnal graphite offset by hand-twisted champagne metallic accents.",
+    },
+    {
+      id: "bordeaux-blush",
+      name: "Bordeaux Velvet & Blush",
+      editorialLabel: "FLORAL DRAMA",
+      primaryHex: "#5C1F2B",
+      secondaryHex: "#D8B4A8",
+      narrative: "Deep dramatic bordeaux petals paired with soft powdered blush rose undertones.",
     },
     {
       id: "raw-ecru-alabaster",
@@ -379,12 +395,12 @@ export const BESPOKE_OPTIONS = {
       narrative: "Unbleached natural field fibers preserving original organic flecks and tonal variations.",
     },
     {
-      id: "smoked-charcoal-pewter",
-      name: "Smoked Charcoal & Pewter",
-      editorialLabel: "MONOCHROME SHADOW",
-      primaryHex: "#191A1D",
-      secondaryHex: "#6B6E75",
-      narrative: "Industrial architectural grey tones with subtle stone depth for contemporary spaces.",
+      id: "moonlit-sage-slate",
+      name: "Moonlit Sage & Slate",
+      editorialLabel: "BOTANICAL TRANQUILITY",
+      primaryHex: "#2A332F",
+      secondaryHex: "#7E8C85",
+      narrative: "Muted dry sage greens paired with damp slate for a tranquil organic harmony.",
     },
     {
       id: "deep-espresso-sienna",
@@ -393,14 +409,6 @@ export const BESPOKE_OPTIONS = {
       primaryHex: "#221A18",
       secondaryHex: "#8A6250",
       narrative: "Earth pigments inspired by raw bark, roasted coffee bean, and terracotta pottery.",
-    },
-    {
-      id: "moonlit-sage-slate",
-      name: "Moonlit Sage & Slate",
-      editorialLabel: "BOTANICAL TRANQUILITY",
-      primaryHex: "#2A332F",
-      secondaryHex: "#7E8C85",
-      narrative: "Muted dry sage greens paired with damp slate for a tranquil organic harmony.",
     },
   ] as ColorPalette[],
 
@@ -520,23 +528,33 @@ export function createWhatsAppCommissionLink(params: {
   leadTime?: string;
   vesselName?: string;
   accentName?: string;
+  isBotanical?: boolean;
 }): string {
   const number = ATELIER_CONFIG.whatsappConciergeNumber.replace(/[^0-9]/g, "");
-  const text =
-    `THE WEAVE STUDIO — BESPOKE COMMISSION DOSSIER\n` +
-    `----------------------------------------\n` +
-    `Client: ${params.clientName.trim() || "Anonymous Patron"}\n` +
-    `Selected Silhouette: ${params.silhouetteName}\n` +
-    `Estimated Lead Time: ${params.leadTime || "4 to 6 Weeks"}\n` +
-    `Tactile Fiber: ${params.fiberName}\n` +
-    `Curated Palette: ${params.paletteName}\n` +
-    `Presentation Vessel: ${params.vesselName || "Blackened Stoneware Vessel"}\n` +
-    `Botanical Accents: ${params.accentName || "Crochet Eucalyptus Sprigs"}\n` +
-    `Notes / Specifications: ${params.notes.trim() || "Standard Atelier Specifications"}\n` +
-    `----------------------------------------\n` +
-    `I would like to request a private consultation regarding this bespoke commission.`;
+  const lines = [
+    `THE WEAVE STUDIO — BESPOKE COMMISSION DOSSIER`,
+    `----------------------------------------`,
+    `Client: ${params.clientName.trim() || "Anonymous Patron"}`,
+    `Selected Silhouette: ${params.silhouetteName}`,
+    `Estimated Lead Time: ${params.leadTime || "4 to 6 Weeks"}`,
+    `Tactile Fiber: ${params.fiberName}`,
+    `Curated Palette: ${params.paletteName}`,
+  ];
 
-  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+  if (params.isBotanical !== false && params.vesselName) {
+    lines.push(`Presentation Vessel: ${params.vesselName}`);
+  }
+  if (params.isBotanical !== false && params.accentName) {
+    lines.push(`Botanical Accents: ${params.accentName}`);
+  }
+
+  lines.push(
+    `Notes / Specifications: ${params.notes.trim() || "Standard Atelier Specifications"}`,
+    `----------------------------------------`,
+    `I would like to request a private consultation regarding this bespoke commission.`
+  );
+
+  return `https://wa.me/${number}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
 
 export function createWhatsAppVaultLink(piece: VaultPiece): string {

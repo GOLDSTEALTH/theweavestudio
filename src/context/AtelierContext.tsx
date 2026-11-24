@@ -16,7 +16,7 @@ const AtelierContext = createContext<AtelierContextType>({
   openVault: () => {},
   closeVault: () => {},
   toggleVault: () => {},
-  selectedSilhouette: "structured-tote",
+  selectedSilhouette: "botanical-study",
   setSelectedSilhouette: () => {},
 });
 
@@ -26,7 +26,7 @@ export function useAtelier() {
 
 export function AtelierProvider({ children }: { children: React.ReactNode }) {
   const [isVaultOpen, setIsVaultOpen] = useState(false);
-  const [selectedSilhouette, setSelectedSilhouette] = useState("structured-tote");
+  const [selectedSilhouette, setSelectedSilhouette] = useState("botanical-study");
 
   const openVault = () => setIsVaultOpen(true);
   const closeVault = () => setIsVaultOpen(false);

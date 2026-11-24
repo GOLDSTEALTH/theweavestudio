@@ -34,11 +34,9 @@ export function Navbar() {
 
   // Lock scroll via lock-counter in SmoothScrollProvider
   useEffect(() => {
-    if (isMenuOpen) {
-      lockScroll();
-    } else {
-      unlockScroll();
-    }
+    if (!isMenuOpen) return;
+    lockScroll();
+    return () => unlockScroll();
   }, [isMenuOpen, lockScroll, unlockScroll]);
 
   // Handle Escape key to dismiss overlay
@@ -86,7 +84,7 @@ export function Navbar() {
               aria-label="Open Navigation Menu"
             >
               <Menu strokeWidth={1.25} className="w-4 h-4 transition-transform group-hover:scale-105" />
-              <span className="font-sans text-[11px] tracking-[0.28em] uppercase font-light">
+              <span className="hidden sm:inline font-sans text-[11px] tracking-[0.28em] uppercase font-light">
                 MENU
               </span>
             </button>
@@ -98,10 +96,10 @@ export function Navbar() {
               href="/"
               className="inline-block group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
             >
-              <span className="font-sans text-[11px] sm:text-xs tracking-[0.35em] uppercase font-medium text-[#F4F1EA] transition-colors group-hover:text-[#C6A972]">
+              <span className="font-sans text-[11px] sm:text-xs tracking-[0.2em] sm:tracking-[0.35em] uppercase font-medium text-[#F4F1EA] transition-colors group-hover:text-[#C6A972]">
                 {ATELIER_CONFIG.studioName}
               </span>
-              <span className="block text-[8px] tracking-[0.45em] text-[#9A968E] uppercase -mt-0.5">
+              <span className="block text-[8px] tracking-[0.25em] sm:tracking-[0.45em] text-[#9A968E] uppercase -mt-0.5">
                 {ATELIER_CONFIG.location.toUpperCase()}
               </span>
             </Link>

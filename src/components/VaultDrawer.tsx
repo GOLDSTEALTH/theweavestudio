@@ -26,11 +26,9 @@ export function VaultDrawer() {
 
   // Lock scroll via lock-counter in SmoothScrollProvider
   useEffect(() => {
-    if (isVaultOpen) {
-      lockScroll();
-    } else {
-      unlockScroll();
-    }
+    if (!isVaultOpen) return;
+    lockScroll();
+    return () => unlockScroll();
   }, [isVaultOpen, lockScroll, unlockScroll]);
 
   return (
