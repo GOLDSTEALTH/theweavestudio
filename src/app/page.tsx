@@ -18,7 +18,7 @@ export default function HomePage() {
       <VaultDrawer />
 
       {/* Campaign Fold 01 (100svh) */}
-      <section className="relative w-full h-[100svh] flex flex-col justify-between overflow-hidden">
+      <section className="hero-cinema relative w-full h-[100svh] flex flex-col justify-between overflow-hidden">
         {/* Full-Bleed Editorial Hero Background */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -30,14 +30,14 @@ export default function HomePage() {
             className="object-cover object-center filter brightness-[0.7] contrast-[1.05] scale-100"
           />
           {/* Subtle Top & Bottom Vignette Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/25 to-[#0E0D0C]/60" />
+          <div className="hero-vignette absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/25 to-[#0E0D0C]/60" />
         </div>
 
         {/* Spacer for Fixed Top Navbar */}
         <div className="h-20" />
 
         {/* Centered Monolithic Typography */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 sm:space-y-8 my-auto">
+        <div className="hero-photo-text relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 sm:space-y-8 my-auto">
           <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-[#C8A87A]">
             THE WEAVE STUDIO PRESENTS
           </span>
@@ -58,7 +58,7 @@ export default function HomePage() {
         </div>
 
         {/* Bottom Colophon Indicator */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
+        <div className="hero-colophon relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
           <span>CHAPTER 01 / EDITIONS</span>
           <span>HYDERABAD BESPOKE ATELIER</span>
         </div>
@@ -86,7 +86,7 @@ export default function HomePage() {
       </section>
 
       {/* Campaign Fold 02 (100svh) */}
-      <section className="relative w-full h-[100svh] flex flex-col justify-between overflow-hidden border-t border-[#F3EFE6]/10">
+      <section className="hero-cinema relative w-full h-[100svh] flex flex-col justify-between overflow-hidden border-t border-[#F3EFE6]/10">
         {/* Full-Bleed Dark Editorial Spread Highlighting Bespoke */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -96,14 +96,14 @@ export default function HomePage() {
             sizes="100vw"
             className="object-cover object-center filter brightness-[0.45] contrast-[1.1]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/40 to-[#0E0D0C]/65" />
+          <div className="hero-vignette absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/40 to-[#0E0D0C]/65" />
         </div>
 
         {/* Spacer */}
         <div className="h-20" />
 
         {/* Centered Bespoke Headline & Dual Stitched CTAs */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 sm:space-y-8 my-auto">
+        <div className="hero-photo-text relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 sm:space-y-8 my-auto">
           <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-[#C8A87A]">
             THE WORLD OF BESPOKE
           </span>
@@ -135,7 +135,7 @@ export default function HomePage() {
         </div>
 
         {/* Bottom Colophon Indicator */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
+        <div className="hero-colophon relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
           <span>CHAPTER 02 / BESPOKE</span>
           <span>1-OF-1 PRIVATE COMMISSIONS</span>
         </div>

@@ -29,7 +29,7 @@ export default function CollectionsPage() {
       <VaultDrawer />
 
       {/* 1. Full-Bleed Interactive Showcase */}
-      <section className="relative w-full h-[100svh] min-h-[700px] flex flex-col justify-between overflow-hidden">
+      <section className="hero-cinema relative w-full h-[100svh] min-h-[700px] flex flex-col justify-between overflow-hidden">
         {/* Full-Bleed Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -41,14 +41,14 @@ export default function CollectionsPage() {
             sizes="100vw"
             className="object-cover object-center filter brightness-[0.62] contrast-[1.08] transition-opacity duration-1000"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/35 to-[#0E0D0C]/60" />
+          <div className="hero-vignette absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/35 to-[#0E0D0C]/60" />
         </div>
 
         {/* Top Spacer for Fixed Nav */}
         <div className="h-20" />
 
         {/* Active Piece Content */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 w-full my-auto">
+        <div className="hero-photo-text relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 w-full my-auto">
           <div className="max-w-4xl space-y-6">
             <div className="flex items-center gap-4 text-[#C8A87A] font-light text-xs tracking-[0.28em] uppercase">
               <span>{activePiece.editionIndex}</span>

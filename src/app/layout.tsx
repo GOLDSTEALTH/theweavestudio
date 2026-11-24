@@ -3,6 +3,7 @@ import { Jost, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { AtelierProvider } from "@/context/AtelierContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -72,8 +73,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0E0D0C",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0E0D0C" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF7F2" },
+  ],
+  colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
 };
@@ -84,16 +88,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark bg-[#0E0D0C]">
+    <html lang="en" suppressHydrationWarning className="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('tws-theme');
+                  if (saved === 'light') {
+                    document.documentElement.classList.add('light');
+                    document.documentElement.classList.remove('dark');
+                  } else {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
-        className={`${jost.variable} ${cormorant.variable} bg-[#0E0D0C] text-[#F3EFE6] font-sans antialiased selection:bg-[#F3EFE6] selection:text-[#0E0D0C] overflow-x-clip min-h-screen relative`}
+        className={`${jost.variable} ${cormorant.variable} bg-canvas text-ink-primary font-sans antialiased overflow-x-clip min-h-screen relative`}
       >
         <div className="linen-grain" aria-hidden="true" />
-        <SmoothScrollProvider>
-          <AtelierProvider>
-            {children}
-          </AtelierProvider>
-        </SmoothScrollProvider>
+        <ThemeProvider>
+          <SmoothScrollProvider>
+            <AtelierProvider>
+              {children}
+            </AtelierProvider>
+          </SmoothScrollProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -5,9 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ArrowLeft } from "lucide-react";
+import { ChevronRight, ArrowLeft, Sun, Moon } from "lucide-react";
 import { VAULT_PIECES } from "@/data/atelier";
 import { useAtelier } from "@/context/AtelierContext";
+import { useTheme } from "@/context/ThemeContext";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 import { ThreadProgress } from "@/components/motion/ThreadProgress";
 
@@ -28,6 +29,7 @@ export function Navbar() {
   const [hoveredSubLink, setHoveredSubLink] = useState<SubLinkItem | null>(null);
 
   const { openVault } = useAtelier();
+  const { theme, toggleTheme } = useTheme();
   const { lockScroll, unlockScroll } = useSmoothScroll();
   const pathname = usePathname();
 
@@ -208,14 +210,37 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Right: Subtle CONCIERGE link & VAULT trigger with dynamic count */}
-          <div className="flex items-center gap-6 sm:gap-8">
+          {/* Right: Subtle CONCIERGE link, THEME toggle & VAULT trigger with dynamic count */}
+          <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
             <Link
               href="/patronage#concierge"
               className="hidden md:inline-block font-sans text-[11px] tracking-[0.25em] uppercase font-light text-[#9C9488] hover:text-[#F3EFE6] transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C8A87A]"
             >
               CONCIERGE
             </Link>
+
+            {/* Architectural Theme Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="group flex items-center gap-2 text-[#9C9488] hover:text-[#F3EFE6] transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C8A87A]"
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun strokeWidth={1.25} className="w-3.5 h-3.5 text-[#C8A87A] transition-transform group-hover:rotate-45 duration-500" />
+                  <span className="font-sans text-[10px] tracking-[0.25em] uppercase font-light hidden sm:inline">
+                    LIGHT
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Moon strokeWidth={1.25} className="w-3.5 h-3.5 text-[#9A7642] transition-transform group-hover:-rotate-12 duration-500" />
+                  <span className="font-sans text-[10px] tracking-[0.25em] uppercase font-light hidden sm:inline">
+                    DARK
+                  </span>
+                </>
+              )}
+            </button>
 
             <button
               onClick={openVault}
@@ -421,9 +446,26 @@ export function Navbar() {
                   </div>
                 </nav>
 
-                {/* Bottom Footer Info */}
-                <div className="pt-6 border-t border-[#F3EFE6]/10 text-right text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
-                  <span>HYDERABAD / STRICTLY HAND-CRAFTED</span>
+                {/* Bottom Footer Info & Theme Toggle */}
+                <div className="pt-6 border-t border-[#F3EFE6]/10 flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center gap-2 hover:text-[#F3EFE6] transition-colors py-1"
+                    aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                  >
+                    {theme === "dark" ? (
+                      <>
+                        <Sun strokeWidth={1.25} className="w-3.5 h-3.5 text-[#C8A87A]" />
+                        <span>PALETTE: LIGHT</span>
+                      </>
+                    ) : (
+                      <>
+                        <Moon strokeWidth={1.25} className="w-3.5 h-3.5 text-[#9A7642]" />
+                        <span>PALETTE: DARK</span>
+                      </>
+                    )}
+                  </button>
+                  <span>HYDERABAD</span>
                 </div>
               </motion.div>
 

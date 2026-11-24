@@ -2,13 +2,15 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowUp, ArrowUpRight } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Sun, Moon } from "lucide-react";
 import { ATELIER_CONFIG, VAULT_PIECES } from "@/data/atelier";
 import { useAtelier } from "@/context/AtelierContext";
+import { useTheme } from "@/context/ThemeContext";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
 export function Footer() {
   const { openVault } = useAtelier();
+  const { theme, toggleTheme } = useTheme();
   const { scrollTo } = useSmoothScroll();
 
   const vaultCountFormatted = String(VAULT_PIECES.length).padStart(2, "0");
@@ -140,6 +142,26 @@ export function Footer() {
         </div>
 
         <div className="flex items-center gap-6">
+          <button
+            onClick={toggleTheme}
+            className="group flex items-center gap-2 hover:text-[#F3EFE6] transition-colors py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C8A87A]"
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun strokeWidth={1.25} className="w-3 h-3 text-[#C8A87A]" />
+                <span>LIGHT MODE</span>
+              </>
+            ) : (
+              <>
+                <Moon strokeWidth={1.25} className="w-3 h-3 text-[#9A7642]" />
+                <span>DARK MODE</span>
+              </>
+            )}
+          </button>
+
+          <span className="text-[#9C9488]/40">|</span>
+
           <button
             onClick={() => scrollTo(0)}
             className="group flex items-center gap-2 hover:text-[#F3EFE6] transition-colors py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C8A87A]"

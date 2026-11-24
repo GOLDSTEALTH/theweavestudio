@@ -57,7 +57,7 @@ export default function PatronagePage() {
       <VaultDrawer />
 
       {/* Editorial Hero */}
-      <section className="relative w-full h-[85svh] min-h-[640px] flex flex-col justify-between overflow-hidden">
+      <section className="hero-cinema relative w-full h-[85svh] min-h-[640px] flex flex-col justify-between overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=85&w=2400&auto=format&fit=crop"
@@ -67,12 +67,12 @@ export default function PatronagePage() {
             sizes="100vw"
             className="object-cover object-center filter brightness-[0.52] contrast-[1.08]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/35 to-[#0E0D0C]/60" />
+          <div className="hero-vignette absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/35 to-[#0E0D0C]/60" />
         </div>
 
         <div className="h-20" />
 
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 my-auto">
+        <div className="hero-photo-text relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 my-auto">
           <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-[#C8A87A]">
             AN EFFORTLESS JOURNEY
           </span>
@@ -96,7 +96,7 @@ export default function PatronagePage() {
           </div>
         </div>
 
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
+        <div className="hero-colophon relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
           <span>PATRON PRIVILEGES</span>
           <span>LIFETIME RESTORATION ASSURANCE</span>
         </div>

@@ -203,7 +203,7 @@ export function BespokeStudio({
                   viewBox="0 0 320 48"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-full h-12"
+                  className="w-full h-12 filter drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
                 >
                   {/* Top Row: Primary Color Loops */}
                   {[0, 32, 64, 96, 128, 160, 192, 224, 256, 288].map((x, i) => (

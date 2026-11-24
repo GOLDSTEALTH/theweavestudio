@@ -20,7 +20,7 @@ export function ThreadDivider({
         whileInView={{ scaleX: 1 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.95, ease: LUXURY_EASE }}
-        className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#F3EFE6]/25 to-transparent origin-left"
+        className="h-[1px] w-full bg-gradient-to-r from-transparent via-current to-transparent opacity-25 origin-left"
       />
       {withKnot && (
         <motion.div
