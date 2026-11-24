@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { VaultDrawer } from "@/components/VaultDrawer";
 import { Footer } from "@/components/Footer";
 import { ContinueYourJourney } from "@/components/ContinueYourJourney";
+import { WeaveReveal } from "@/components/motion/WeaveReveal";
 
 export const metadata: Metadata = {
   title: "The World of Bespoke — An Introduction to Possibility",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function BespokePage() {
   return (
-    <main className="min-h-screen bg-[#000000] text-white">
+    <main className="min-h-screen bg-[#0E0D0C] text-[#F3EFE6]">
       <Navbar />
       <VaultDrawer />
 
@@ -29,92 +30,93 @@ export default function BespokePage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center filter brightness-[0.52] contrast-[1.10]"
+            className="object-cover object-center filter brightness-[0.52] contrast-[1.08]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/35 to-[#0E0D0C]/60" />
         </div>
 
         <div className="h-20" />
 
         <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 my-auto">
-          <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-white/70">
+          <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-[#C8A87A]">
             AN INTRODUCTION TO POSSIBILITY
           </span>
 
-          <h1 className="font-sans text-3xl sm:text-5xl lg:text-[70px] font-light tracking-[0.18em] uppercase text-white leading-tight max-w-4xl mx-auto">
-            THE WORLD OF BESPOKE
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-[72px] font-light tracking-tight text-[#F3EFE6] leading-tight max-w-4xl mx-auto">
+            The World of Bespoke
           </h1>
 
-          <p className="font-sans text-xs sm:text-sm font-light tracking-wide text-white/70 max-w-xl mx-auto leading-relaxed">
+          <p className="font-sans text-xs sm:text-sm font-light tracking-wide text-[#9C9488] max-w-xl mx-auto leading-relaxed">
             In our private office, there are no predefined boundaries. Every commission begins with an open conversation, a blank folio, and unspun natural fibers.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/bespoke/configure"
-              className="rounded-full border border-white/60 bg-transparent px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase text-white transition-all duration-500 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              href="/bespoke/commission"
+              className="btn-stitched px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase"
             >
-              ENTER 3D CONFIGURATOR
+              <span className="stitch-dot" />
+              <span>THE COMMISSION TABLE</span>
             </Link>
             <Link
               href="/patronage#concierge"
-              className="rounded-full border border-white/30 bg-transparent px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase text-white/70 transition-all duration-500 hover:border-white hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              className="rounded-full border border-[#F3EFE6]/30 bg-transparent px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase text-[#9C9488] transition-all duration-500 hover:border-[#C8A87A] hover:text-[#F3EFE6] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C8A87A]"
             >
               REQUEST PRIVATE CONSULTATION
             </Link>
           </div>
         </div>
 
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
-          <span>CHAPTER BESPOKE / MMXXIV</span>
+        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
+          <span>CHAPTER BESPOKE</span>
           <span>HYDERABAD PRIVATE OFFICE</span>
         </div>
       </section>
 
       {/* PRIVATE OFFICE Editorial Split Section */}
-      <section id="private-office" className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-white/15">
+      <section id="private-office" className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-[#F3EFE6]/12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           <div className="lg:col-span-6 space-y-6">
-            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 block font-light">
+            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#C8A87A] block font-light">
               THE PRIVATE OFFICE
             </span>
 
-            <h2 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.18em] uppercase leading-snug">
-              ONE-ON-ONE ARTISAN CONSULTATIONS
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#F3EFE6] font-light tracking-wide uppercase leading-snug">
+              One-on-One Artisan Consultations
             </h2>
 
-            <div className="border-l border-white/25 pl-6 py-2 my-6">
-              <p className="font-sans text-xs sm:text-sm font-light text-white/80 leading-relaxed">
+            <div className="border-l border-[#C8A87A]/50 pl-6 py-2 my-6">
+              <p className="font-serif text-lg font-light text-[#F3EFE6]/90 leading-relaxed italic">
                 &ldquo;Bespoke is not a customization menu. It is an unhurried communion between a patron&apos;s spatial vision and an artisan&apos;s single hook.&rdquo;
               </p>
             </div>
 
-            <p className="font-sans text-xs sm:text-sm font-light text-white/60 leading-relaxed">
+            <p className="font-sans text-xs sm:text-sm font-light text-[#9C9488] leading-relaxed">
               When engaging The Weave Studio for a bespoke private commission, you are assigned a dedicated master artisan. We begin by dispatching our curated <strong>Yarn Swatch Box</strong> directly to your residence, featuring 5cm tactile fiber discs in raw Belgian linen, high-altitude merino, and mercerized Giza cotton.
             </p>
 
-            <div className="space-y-4 pt-4 text-xs font-light text-white/70">
+            <div className="space-y-4 pt-4 text-xs font-light text-[#9C9488]">
               <div className="flex items-start gap-4">
-                <span className="text-white font-normal">01 /</span>
+                <span className="text-[#C8A87A] font-normal">01 /</span>
                 <div>
-                  <strong className="text-white block font-normal uppercase tracking-wider mb-1">PROPORTION &amp; SCALE CALIBRATION</strong>
+                  <strong className="text-[#F3EFE6] block font-normal uppercase tracking-wider mb-1">PROPORTION &amp; SCALE CALIBRATION</strong>
                   <span>Every wall tapestry, tote handle drop, and floral stem height is modified to your exact architectural space.</span>
                 </div>
               </div>
 
               <div className="flex items-start gap-4">
-                <span className="text-white font-normal">02 /</span>
+                <span className="text-[#C8A87A] font-normal">02 /</span>
                 <div>
-                  <strong className="text-white block font-normal uppercase tracking-wider mb-1">BESPOKE COLOR MATCHING</strong>
-                  <span>We formulate custom botanical and low-impact mineral dye vats to match residential finishes or yacht palettes.</span>
+                  <strong className="text-[#F3EFE6] block font-normal uppercase tracking-wider mb-1">BESPOKE COLOR MATCHING</strong>
+                  <span>We formulate custom botanical and low-impact mineral dye vats to match residential finishes or private interior palettes.</span>
                 </div>
               </div>
 
               <div className="flex items-start gap-4">
-                <span className="text-white font-normal">03 /</span>
+                <span className="text-[#C8A87A] font-normal">03 /</span>
                 <div>
-                  <strong className="text-white block font-normal uppercase tracking-wider mb-1">BOUND PROVENANCE LEDGER</strong>
-                  <span>Each finished piece includes a calfskin-bound certificate documenting the artisan, craft hours, and yarn harvest.</span>
+                  <strong className="text-[#F3EFE6] block font-normal uppercase tracking-wider mb-1">BOUND PROVENANCE LEDGER</strong>
+                  <span>Each finished piece includes a registered certificate documenting the artisan, craft hours, and yarn harvest.</span>
                 </div>
               </div>
             </div>
@@ -122,7 +124,7 @@ export default function BespokePage() {
             <div className="pt-6">
               <Link
                 href="/patronage#concierge"
-                className="inline-flex items-center gap-2 font-sans text-[11px] tracking-[0.22em] uppercase text-white hover:underline focus-visible:outline-none"
+                className="inline-flex items-center gap-2 font-sans text-[11px] tracking-[0.22em] uppercase text-[#C8A87A] hover:underline focus-visible:outline-none"
               >
                 <span>COMMISSION WITH PRIVATE CONCIERGE</span>
                 <ArrowUpRight strokeWidth={1.25} className="w-3.5 h-3.5" />
@@ -131,77 +133,77 @@ export default function BespokePage() {
           </div>
 
           <div className="lg:col-span-6">
-            <div className="relative aspect-[4/5] w-full bg-[#151515] border border-white/15 overflow-hidden">
+            <WeaveReveal className="relative aspect-[4/5] w-full bg-[#171513] border border-[#F3EFE6]/15 rounded-2xl overflow-hidden">
               <Image
                 src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=85&w=1200&auto=format&fit=crop"
                 alt="Bespoke Yarn Swatch and Artisan Consultation"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover object-center filter brightness-[0.88]"
+                className="object-cover object-center filter brightness-[0.92]"
               />
-            </div>
+            </WeaveReveal>
           </div>
         </div>
       </section>
 
       {/* ONE-OF-ONE COMMISSIONS Full-Width Showcase */}
       <section className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="border-b border-white/15 pb-8 mb-16 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="border-b border-[#F3EFE6]/12 pb-8 mb-16 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-2">
-            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 block font-light">
+            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#C8A87A] block font-light">
               ARCHIVE SHOWCASE
             </span>
-            <h2 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.18em] uppercase">
-              ONE-OF-ONE COMMISSIONS
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#F3EFE6] font-light tracking-wide uppercase">
+              One-of-One Commissions
             </h2>
           </div>
-          <span className="font-sans text-[10px] tracking-[0.25em] text-white/40 uppercase font-light">
+          <span className="font-sans text-[10px] tracking-[0.25em] text-[#9C9488] uppercase font-light">
             PRIVATE ARCHIVES
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 sm:gap-16">
           <div className="space-y-6">
-            <div className="relative aspect-[16/10] w-full bg-[#151515] overflow-hidden">
+            <WeaveReveal className="relative aspect-[16/10] w-full bg-[#171513] rounded-xl overflow-hidden border border-[#F3EFE6]/10">
               <Image
                 src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=85&w=1400&auto=format&fit=crop"
                 alt="Bespoke Acoustic Tapestry Commission"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover object-center filter brightness-[0.85] hover:scale-105 transition-transform duration-700"
+                className="object-cover object-center filter brightness-[0.9] hover:scale-105 transition-transform duration-700"
               />
-            </div>
-            <div className="border-l border-white/25 pl-6 space-y-2">
-              <span className="text-[10px] tracking-[0.25em] uppercase text-white/40 font-light block">
+            </WeaveReveal>
+            <div className="border-l border-[#C8A87A]/50 pl-6 space-y-2">
+              <span className="text-[10px] tracking-[0.25em] uppercase text-[#C8A87A] font-light block">
                 COMMISSION NO. 08 — RESIDENTIAL WALLWORK
               </span>
-              <h3 className="font-sans text-xl text-white font-light tracking-[0.16em] uppercase">
+              <h3 className="font-serif text-xl text-[#F3EFE6] font-light tracking-wide">
                 The Obsidian &amp; Alabaster Acoustic Diptych
               </h3>
-              <p className="font-sans text-xs text-white/60 font-light leading-relaxed">
+              <p className="font-sans text-xs text-[#9C9488] font-light leading-relaxed">
                 Hand-knotted from high-altitude Ladakhi merino over 160 hours to absorb resonant frequencies in a minimalist concrete gallery.
               </p>
             </div>
           </div>
 
           <div className="space-y-6">
-            <div className="relative aspect-[16/10] w-full bg-[#151515] overflow-hidden">
+            <WeaveReveal delay={0.2} className="relative aspect-[16/10] w-full bg-[#171513] rounded-xl overflow-hidden border border-[#F3EFE6]/10">
               <Image
                 src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=85&w=1400&auto=format&fit=crop"
                 alt="Bespoke Botanical Floral Commission"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover object-center filter brightness-[0.85] hover:scale-105 transition-transform duration-700"
+                className="object-cover object-center filter brightness-[0.9] hover:scale-105 transition-transform duration-700"
               />
-            </div>
-            <div className="border-l border-white/25 pl-6 space-y-2">
-              <span className="text-[10px] tracking-[0.25em] uppercase text-white/40 font-light block">
+            </WeaveReveal>
+            <div className="border-l border-[#C8A87A]/50 pl-6 space-y-2">
+              <span className="text-[10px] tracking-[0.25em] uppercase text-[#C8A87A] font-light block">
                 COMMISSION NO. 14 — BOTANICAL SCULPTURE
               </span>
-              <h3 className="font-sans text-xl text-white font-light tracking-[0.16em] uppercase">
+              <h3 className="font-serif text-xl text-[#F3EFE6] font-light tracking-wide">
                 The Véridique Grand Centrepiece
               </h3>
-              <p className="font-sans text-xs text-white/60 font-light leading-relaxed">
+              <p className="font-sans text-xs text-[#9C9488] font-light leading-relaxed">
                 Immortalized botanicals hand-tensioned from Japanese washi bark yarn and fine brass armature, mounted in hand-thrown volcanic stoneware.
               </p>
             </div>
@@ -213,10 +215,10 @@ export default function BespokePage() {
       <ContinueYourJourney
         cards={[
           {
-            title: "3D BOUQUET CONFIGURATOR",
-            description: "Interact with living fiber swatches and reactive studio lighting in real-time 3D.",
-            href: "/bespoke/configure",
-            image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=85&w=1200&auto=format&fit=crop",
+            title: "THE COMMISSION TABLE",
+            description: "Curate living fibers, hand-dyed palettes, and bespoke dimensions at The Commission Table.",
+            href: "/bespoke/commission",
+            image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=85&w=1200&auto=format&fit=crop",
           },
           {
             title: "BESPOKE CRAFT DISCIPLINE",

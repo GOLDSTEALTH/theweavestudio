@@ -42,24 +42,6 @@ export interface TactileFiber {
   description: string;
 }
 
-export interface PaletteStageTheme {
-  atmosphereLabel: string;   // e.g. "WARM LIMESTONE GALLERY"
-  bgCenterHex: string;       // Soft radial spotlight glow behind the bouquet
-  bgEdgeHex: string;         // Outer studio vignette
-  bgFloorHex: string;        // Lower cyclorama floor reflection tone
-  plinthHex: string;         // Pedestal material tint
-  keyLightHex: string;       // Main directional shadow-casting side-raking key
-  keyIntensity: number;      // e.g. 2.8 - 3.8
-  fillLightHex: string;      // Subtle opposite fill (kept low for deep contrast)
-  fillIntensity: number;     // e.g. 0.38 - 0.52
-  rimLightHex: string;       // Crisp back-edge silhouette rim light
-  rimIntensity: number;      // e.g. 2.4 - 3.5
-  hemiSkyHex: string;
-  hemiGroundHex: string;
-  hemiIntensity: number;     // Kept low (0.28 - 0.38) so shadows between flowers stay rich
-  envIntensity: number;      // Kept low (0.26 - 0.36) so crevices don't wash out
-}
-
 export interface ColorPalette {
   id: string;
   name: string;
@@ -67,7 +49,6 @@ export interface ColorPalette {
   primaryHex: string;
   secondaryHex: string;
   narrative: string;
-  stageTheme: PaletteStageTheme;
 }
 
 export interface BespokeVessel {
@@ -163,7 +144,7 @@ export const ATELIER_CONFIG: AtelierConfig = {
   studioName: "The Weave Studio",
   monogram: "TWS",
   tagline: "Architecture in Every Loop.",
-  eyebrow: "BESPOKE HANDCRAFTED ATELIER",
+  eyebrow: "BESPOKE HANDCRAFTED CROCHET ATELIER",
   instagramUrl: "https://www.instagram.com/theweave_studio/",
   instagramHandle: "@theweave_studio",
   whatsappConciergeNumber: "+919876543210",
@@ -377,12 +358,12 @@ export const ATELIER_STORIES: AtelierStory[] = [
     id: "story-04",
     number: "04",
     title: "The Hyderabad Studio Ledger",
-    subtitle: "A private atelier in Banjara Hills cataloging every needle stroke in permanent ink.",
+    subtitle: "A private atelier in Hyderabad cataloging every needle stroke in permanent ink.",
     tag: "STUDIO LEDGER",
     lead: "Every commissioned piece is permanently inscribed with an immutable archive serial number.",
     body: [
-      "Founded in Hyderabad, The Weave Studio operates as an unhurried sanctuary of craft. Here, natural daylight pours into quiet workstations overlooking courtyard limestone, illuminating hundreds of individual skeins categorized by lot provenance and harvest year.",
-      "Upon completion of each commission, the master artisan signs our calfskin-bound studio ledger alongside the yarn lot codes, hook specifications, handcraft hours, and client dedication. A corresponding hand-engraved metal seal is sewn directly into the weave.",
+      "Founded in Hyderabad, The Weave Studio operates as an unhurried sanctuary of craft. Here, natural daylight illuminates quiet workstations, highlighting hundreds of individual skeins categorized by lot provenance and harvest year.",
+      "Upon completion of each commission, the master artisan signs our studio ledger alongside the yarn lot codes, hook specifications, handcraft hours, and client dedication. A corresponding hand-engraved metal seal is sewn directly into the weave.",
     ],
     pullquote: "We do not manufacture seasonal collections. We commission generational heirlooms for those who understand permanence.",
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=85&w=1400&auto=format&fit=crop",
@@ -407,7 +388,7 @@ export const BOUTIQUE_ITEMS: BoutiqueItem[] = [
   {
     id: "boutique-02",
     title: "The Alabaster Table Runner",
-    subtitle: "Open-Gauge Architectural Textile for Dining Monoliths",
+    subtitle: "Open-Gauge Architectural Textile for Dining Tables",
     category: "FOR THE HOME",
     priceINR: "₹24,000",
     priceNumeric: 24000,
@@ -430,7 +411,7 @@ export const BOUTIQUE_ITEMS: BoutiqueItem[] = [
     handcraftHours: "68 Hours",
     image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=85&w=1200&auto=format&fit=crop",
     edition: "EDITION OF 05",
-    description: "Rigid monolithic hexagonal geometry designed for black-tie gatherings. Includes detachable hand-twisted metallic cord strap.",
+    description: "Rigid monolithic hexagonal geometry designed for evening gatherings. Includes detachable hand-twisted metallic cord strap.",
   },
   {
     id: "boutique-04",
@@ -490,7 +471,7 @@ export const PATRONAGE_FAQS: PatronageFAQ[] = [
   {
     category: "LOGISTICS",
     question: "How are pieces dispatched internationally?",
-    answer: "All finished commissions and Vault pieces are packed in custom cedar-lined presentation boxes wrapped in breathable organic muslin. International shipments are handled exclusively via insured white-glove courier services (DHL Express Medical/Luxury or FedEx International Priority) with tracked direct handover.",
+    answer: "All finished commissions and Vault pieces are packed in custom cedar-lined presentation boxes wrapped in breathable organic muslin. International shipments are handled exclusively via insured white-glove courier services with tracked direct handover.",
   },
   {
     category: "PRESERVATION",
@@ -500,12 +481,12 @@ export const PATRONAGE_FAQS: PatronageFAQ[] = [
   {
     category: "BESPOKE SERVICE",
     question: "Can I commission custom color matching to interior swatches?",
-    answer: "Yes. Our Private Office accepts architectural material boards, Benjamin Moore/Pantone references, or physical fabric cuttings. Our artisans create custom low-impact mineral dye vats to achieve precise tonal alignment for your private residence or yacht interior.",
+    answer: "Yes. Our Private Office accepts architectural material boards, paint references, or physical fabric cuttings. Our artisans create custom low-impact mineral dye vats to achieve precise tonal alignment for your private residence.",
   },
   {
     category: "SALON VISITS",
     question: "How can I arrange an appointment at the Hyderabad atelier?",
-    answer: "Private salon appointments are held by prior arrangement at our Banjara Hills studio. Patrons are invited to view work in progress, inspect archive ledgers, and discuss bespoke proportions over single-origin teas. Please contact our Concierge via WhatsApp or inquiry form to reserve a private salon slot.",
+    answer: "Private salon appointments are held by prior arrangement at our Hyderabad studio. Patrons are invited to view work in progress, inspect archive ledgers, and discuss bespoke proportions. Please contact our Concierge via WhatsApp or inquiry form to reserve a private salon slot.",
   },
 ];
 
@@ -596,152 +577,50 @@ export const BESPOKE_OPTIONS = {
     {
       id: "ivory-champagne",
       name: "Ivory & Champagne",
-      editorialLabel: "WARM LIMESTONE GALLERY",
+      editorialLabel: "WARM LIMESTONE",
       primaryHex: "#EFE9DD",
-      secondaryHex: "#C6A972",
-      narrative: "Luminous unbleached ivory blooms accented with brushed champagne gold fiber twists.",
-      stageTheme: {
-        atmosphereLabel: "WARM LIMESTONE GALLERY",
-        bgCenterHex: "#2C2620",
-        bgEdgeHex: "#0C0B0A",
-        bgFloorHex: "#171411",
-        plinthHex: "#1B1815",
-        keyLightHex: "#FFF0D6",
-        keyIntensity: 3.1,
-        fillLightHex: "#8EA3BC",
-        fillIntensity: 0.40,
-        rimLightHex: "#F0CF90",
-        rimIntensity: 2.6,
-        hemiSkyHex: "#EBE2D3",
-        hemiGroundHex: "#181614",
-        hemiIntensity: 0.30,
-        envIntensity: 0.28,
-      },
+      secondaryHex: "#C8A87A",
+      narrative: "Luminous unbleached ivory yarns accented with spun sand raw silk thread.",
     },
     {
       id: "obsidian-champagne",
       name: "Obsidian & Champagne",
-      editorialLabel: "SMOKED GRAPHITE PAVILION",
+      editorialLabel: "SMOKED GRAPHITE",
       primaryHex: "#181A22",
-      secondaryHex: "#C6A972",
-      narrative: "Lifted slate obsidian petals offset by hand-twisted champagne metallic accents.",
-      stageTheme: {
-        atmosphereLabel: "SMOKED GRAPHITE PAVILION",
-        bgCenterHex: "#383D49",
-        bgEdgeHex: "#111319",
-        bgFloorHex: "#1C1E26",
-        plinthHex: "#24262E",
-        keyLightHex: "#FFFFFF",
-        keyIntensity: 3.8,
-        fillLightHex: "#9EB2CC",
-        fillIntensity: 0.52,
-        rimLightHex: "#FFE09E",
-        rimIntensity: 3.5,
-        hemiSkyHex: "#D2D9E3",
-        hemiGroundHex: "#0E1014",
-        hemiIntensity: 0.38,
-        envIntensity: 0.36,
-      },
+      secondaryHex: "#C8A87A",
+      narrative: "Deep slate obsidian loops offset by hand-twisted warm silk thread.",
     },
     {
       id: "bordeaux-blush",
       name: "Bordeaux Velvet & Blush",
-      editorialLabel: "VELVET BORDEAUX SALON",
+      editorialLabel: "VELVET BORDEAUX",
       primaryHex: "#5C1F2B",
       secondaryHex: "#D8B4A8",
-      narrative: "Deep dramatic bordeaux petals paired with soft powdered blush rose undertones.",
-      stageTheme: {
-        atmosphereLabel: "VELVET BORDEAUX SALON",
-        bgCenterHex: "#2E161C",
-        bgEdgeHex: "#0C0608",
-        bgFloorHex: "#180B0F",
-        plinthHex: "#1E1014",
-        keyLightHex: "#FFEBE4",
-        keyIntensity: 3.2,
-        fillLightHex: "#B4848B",
-        fillIntensity: 0.40,
-        rimLightHex: "#EAB49A",
-        rimIntensity: 2.8,
-        hemiSkyHex: "#E8D1CB",
-        hemiGroundHex: "#170E11",
-        hemiIntensity: 0.28,
-        envIntensity: 0.26,
-      },
+      narrative: "Deep dramatic bordeaux stitches paired with soft powdered blush undertones.",
     },
     {
       id: "raw-ecru-alabaster",
       name: "Raw Ecru & Alabaster",
-      editorialLabel: "ATELIER PLASTER DAYLIGHT",
+      editorialLabel: "ATELIER PLASTER",
       primaryHex: "#EAE5DC",
       secondaryHex: "#C8C0B2",
-      narrative: "Unbleached natural field fibers preserving original organic flecks and tonal variations.",
-      stageTheme: {
-        atmosphereLabel: "ATELIER PLASTER DAYLIGHT",
-        bgCenterHex: "#332D25",
-        bgEdgeHex: "#12100E",
-        bgFloorHex: "#1E1A15",
-        plinthHex: "#221E19",
-        keyLightHex: "#FFFBF0",
-        keyIntensity: 3.0,
-        fillLightHex: "#A8A095",
-        fillIntensity: 0.42,
-        rimLightHex: "#EAD7B7",
-        rimIntensity: 2.4,
-        hemiSkyHex: "#EDE7DC",
-        hemiGroundHex: "#181715",
-        hemiIntensity: 0.32,
-        envIntensity: 0.28,
-      },
+      narrative: "Unbleached natural field fibers preserving organic flecks and tonal nuance.",
     },
     {
       id: "moonlit-sage-slate",
       name: "Moonlit Sage & Slate",
-      editorialLabel: "BOTANICAL CONSERVATORY",
+      editorialLabel: "BOTANICAL SAGE",
       primaryHex: "#2A332F",
       secondaryHex: "#7E8C85",
       narrative: "Muted dry sage greens paired with damp slate for a tranquil organic harmony.",
-      stageTheme: {
-        atmosphereLabel: "BOTANICAL CONSERVATORY",
-        bgCenterHex: "#1D2C28",
-        bgEdgeHex: "#080E0C",
-        bgFloorHex: "#101916",
-        plinthHex: "#141E1B",
-        keyLightHex: "#ECF7F2",
-        keyIntensity: 3.2,
-        fillLightHex: "#7D9B92",
-        fillIntensity: 0.42,
-        rimLightHex: "#C5E2D6",
-        rimIntensity: 2.7,
-        hemiSkyHex: "#C5D6CC",
-        hemiGroundHex: "#0C1310",
-        hemiIntensity: 0.30,
-        envIntensity: 0.26,
-      },
     },
     {
       id: "deep-espresso-sienna",
       name: "Deep Espresso & Sienna",
-      editorialLabel: "AMBER SIENNA LOUNGE",
+      editorialLabel: "AMBER SIENNA",
       primaryHex: "#221A18",
       secondaryHex: "#8A6250",
       narrative: "Earth pigments inspired by raw bark, roasted coffee bean, and terracotta pottery.",
-      stageTheme: {
-        atmosphereLabel: "AMBER SIENNA LOUNGE",
-        bgCenterHex: "#301F17",
-        bgEdgeHex: "#0E0907",
-        bgFloorHex: "#1A110D",
-        plinthHex: "#1F1612",
-        keyLightHex: "#FFE4C2",
-        keyIntensity: 3.4,
-        fillLightHex: "#B58168",
-        fillIntensity: 0.44,
-        rimLightHex: "#F0AC74",
-        rimIntensity: 3.0,
-        hemiSkyHex: "#E8D5CA",
-        hemiGroundHex: "#17100D",
-        hemiIntensity: 0.32,
-        envIntensity: 0.30,
-      },
     },
   ] as ColorPalette[],
 
@@ -867,7 +746,7 @@ export function createWhatsAppCommissionLink(params: {
   const lines = [
     `THE WEAVE STUDIO — BESPOKE COMMISSION DOSSIER`,
     `----------------------------------------`,
-    `Client: ${params.clientName.trim() || "Anonymous Patron"}`,
+    `Patron: ${params.clientName.trim() || "Anonymous Patron"}`,
     `Selected Silhouette: ${params.silhouetteName}`,
     `Estimated Lead Time: ${params.leadTime || "4 to 6 Weeks"}`,
     `Tactile Fiber: ${params.fiberName}`,

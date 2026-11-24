@@ -52,7 +52,7 @@ export default function PatronagePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#000000] text-white">
+    <main className="min-h-screen bg-[#0E0D0C] text-[#F3EFE6]">
       <Navbar />
       <VaultDrawer />
 
@@ -65,197 +65,200 @@ export default function PatronagePage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center filter brightness-[0.52] contrast-[1.10]"
+            className="object-cover object-center filter brightness-[0.52] contrast-[1.08]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/35 to-[#0E0D0C]/60" />
         </div>
 
         <div className="h-20" />
 
         <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 my-auto">
-          <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-white/70">
+          <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-[#C8A87A]">
             AN EFFORTLESS JOURNEY
           </span>
 
-          <h1 className="font-sans text-3xl sm:text-5xl lg:text-[70px] font-light tracking-[0.18em] uppercase text-white leading-tight max-w-4xl mx-auto">
-            CARE &amp; PATRONAGE
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-[70px] font-light tracking-tight uppercase text-[#F3EFE6] leading-tight max-w-4xl mx-auto">
+            Care &amp; Patronage
           </h1>
 
-          <p className="font-sans text-xs sm:text-sm font-light tracking-wide text-white/70 max-w-xl mx-auto leading-relaxed">
+          <p className="font-sans text-xs sm:text-sm font-light tracking-wide text-[#9C9488] max-w-xl mx-auto leading-relaxed">
             Acquiring an edition from The Weave Studio is the genesis of a lifelong relationship. Discover our lifetime restoration commitments, preservation standards, and private salon appointments.
           </p>
 
           <div className="pt-4">
             <Link
               href="#concierge"
-              className="inline-block rounded-full border border-white/60 bg-transparent px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase text-white transition-all duration-500 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              className="btn-stitched px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase"
             >
-              CONTACT PRIVATE CONCIERGE
+              <span className="stitch-dot" />
+              <span>CONTACT PRIVATE CONCIERGE</span>
             </Link>
           </div>
         </div>
 
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
           <span>PATRON PRIVILEGES</span>
           <span>LIFETIME RESTORATION ASSURANCE</span>
         </div>
       </section>
 
       {/* Three Minimalist Care Pillars */}
-      <section className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-white/15">
-        <div className="border-b border-white/15 pb-8 mb-16 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <section className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-[#F3EFE6]/12">
+        <div className="border-b border-[#F3EFE6]/12 pb-8 mb-16 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-2">
-            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 block font-light">
+            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#C8A87A] block font-light">
               STEWARDSHIP PILLARS
             </span>
-            <h2 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.18em] uppercase">
-              HEIRLOOM PRESERVATION
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#F3EFE6] font-light tracking-wide uppercase">
+              Heirloom Preservation
             </h2>
           </div>
-          <span className="font-sans text-[10px] tracking-[0.25em] text-white/40 uppercase font-light">
+          <span className="font-sans text-[10px] tracking-[0.25em] text-[#9C9488] uppercase font-light">
             REGISTERED PATRONS
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
-          {/* Pillar 1 */}
-          <div className="p-8 sm:p-10 border border-white/15 bg-[#151515] space-y-4">
-            <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white">
+          <div className="p-8 sm:p-10 border border-[#F3EFE6]/12 bg-[#171513] rounded-xl space-y-4">
+            <div className="w-10 h-10 rounded-full border border-[#C8A87A]/40 flex items-center justify-center text-[#C8A87A]">
               <Sparkles className="w-5 h-5 stroke-[1.25]" />
             </div>
-            <h3 className="font-sans text-lg text-white font-light tracking-[0.16em] uppercase">
-              Hand Blocking &amp; Restoration
+            <h3 className="font-serif text-xl text-[#F3EFE6] font-light tracking-wide">
+              Lifetime Studio Steam-Blocking
             </h3>
-            <p className="font-sans text-xs text-white/60 font-light leading-relaxed">
-              Living natural fibers breathe with climate. Registered patrons enjoy complimentary lifetime steam-blocking, shape alignment, and stitch re-tensioning at our Hyderabad atelier.
+            <p className="font-sans text-xs text-[#9C9488] font-light leading-relaxed">
+              Natural fibers relax and settle over years of display and wear. Every registered patron enjoys complimentary re-shaping and artisanal steam-blocking at our Hyderabad studio.
             </p>
           </div>
 
-          {/* Pillar 2 */}
-          <div className="p-8 sm:p-10 border border-white/15 bg-[#151515] space-y-4">
-            <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white">
+          <div className="p-8 sm:p-10 border border-[#F3EFE6]/12 bg-[#171513] rounded-xl space-y-4">
+            <div className="w-10 h-10 rounded-full border border-[#C8A87A]/40 flex items-center justify-center text-[#C8A87A]">
               <ShieldCheck className="w-5 h-5 stroke-[1.25]" />
             </div>
-            <h3 className="font-sans text-lg text-white font-light tracking-[0.16em] uppercase">
-              Cedar &amp; Muslin Storage
+            <h3 className="font-serif text-xl text-[#F3EFE6] font-light tracking-wide">
+              Archival Repair &amp; Stitch Re-tensioning
             </h3>
-            <p className="font-sans text-xs text-white/60 font-light leading-relaxed">
-              Every commission departs in a custom-built, aromatic red cedar presentation case lined with unbleached organic muslin, establishing a permanent microclimate for generational defense.
+            <p className="font-sans text-xs text-[#9C9488] font-light leading-relaxed">
+              Should an accidental thread pull occur, our artisans restore the piece using archived fiber skeins from the identical harvest lot, returning it to pristine structural tension.
             </p>
           </div>
 
-          {/* Pillar 3 */}
-          <div className="p-8 sm:p-10 border border-white/15 bg-[#151515] space-y-4">
-            <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white">
+          <div className="p-8 sm:p-10 border border-[#F3EFE6]/12 bg-[#171513] rounded-xl space-y-4">
+            <div className="w-10 h-10 rounded-full border border-[#C8A87A]/40 flex items-center justify-center text-[#C8A87A]">
               <Home className="w-5 h-5 stroke-[1.25]" />
             </div>
-            <h3 className="font-sans text-lg text-white font-light tracking-[0.16em] uppercase">
-              Private Studio Appointments
+            <h3 className="font-serif text-xl text-[#F3EFE6] font-light tracking-wide">
+              Private Salon Appointments
             </h3>
-            <p className="font-sans text-xs text-white/60 font-light leading-relaxed">
-              Patrons receive priority private salon access at our Banjara Hills studio to inspect ongoing commissions, review yarn harvest archives, or initiate custom color-matched projects.
+            <p className="font-sans text-xs text-[#9C9488] font-light leading-relaxed">
+              Patrons wishing to view works in progress, inspect material folios, or commission custom editions are welcomed by private appointment to our Hyderabad salon.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Expandable Monochrome FAQ Accordion */}
-      <section className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-white/15">
-        <div className="border-b border-white/15 pb-8 mb-16 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 block font-light">
-              QUESTIONS &amp; PROTOCOLS
+      {/* Accordion FAQ Section */}
+      <section className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-[#F3EFE6]/12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+          <div className="lg:col-span-5 space-y-4">
+            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#C8A87A] block font-light">
+              CLIENT INQUIRIES
             </span>
-            <h2 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.18em] uppercase">
-              PATRONAGE FAQS
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#F3EFE6] font-light tracking-wide uppercase leading-snug">
+              Frequently Addressed Curations
             </h2>
+            <p className="font-sans text-xs sm:text-sm text-[#9C9488] font-light leading-relaxed pt-2">
+              Review answers regarding commission timelines, yarn swatch deliveries, international courier handovers, and studio appointment terms.
+            </p>
           </div>
-          <span className="font-sans text-[10px] tracking-[0.25em] text-white/40 uppercase font-light">
-            06 CHAPTERS
-          </span>
-        </div>
 
-        <div className="divide-y divide-white/10 max-w-4xl">
-          {PATRONAGE_FAQS.map((faq, idx) => {
-            const isOpen = openFaqIdx === idx;
+          <div className="lg:col-span-7 divide-y divide-[#F3EFE6]/10">
+            {PATRONAGE_FAQS.map((faq, idx) => {
+              const isOpen = openFaqIdx === idx;
 
-            return (
-              <div key={idx} className="py-6 sm:py-8">
-                <button
-                  onClick={() => toggleFaq(idx)}
-                  className="w-full flex items-center justify-between text-left gap-6 group focus-visible:outline-none"
-                  aria-expanded={isOpen}
-                >
-                  <div className="flex items-center gap-4 sm:gap-6">
-                    <span className="text-[10px] tracking-[0.25em] text-white/40 font-light">
-                      0{idx + 1}
-                    </span>
-                    <h3 className="font-sans text-base sm:text-lg text-white font-light tracking-wide group-hover:text-white/80 transition-colors">
-                      {faq.question}
-                    </h3>
-                  </div>
+              return (
+                <div key={idx} className="py-6 sm:py-8">
+                  <button
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full flex items-center justify-between text-left group focus-visible:outline-none"
+                  >
+                    <div className="space-y-1 pr-6">
+                      <span className="font-sans text-[9px] tracking-[0.25em] uppercase text-[#C8A87A] block font-light">
+                        {faq.category}
+                      </span>
+                      <h4 className="font-serif text-base sm:text-lg text-[#F3EFE6] font-light tracking-wide group-hover:text-[#C8A87A] transition-colors">
+                        {faq.question}
+                      </h4>
+                    </div>
 
-                  <ChevronDown
-                    className={`w-4 h-4 text-white/50 transition-transform duration-300 ${
-                      isOpen ? "rotate-180 text-white" : ""
-                    }`}
-                  />
-                </button>
+                    <ChevronDown
+                      className={`w-4 h-4 text-[#9C9488] transition-transform duration-300 shrink-0 ${
+                        isOpen ? "rotate-180 text-[#C8A87A]" : ""
+                      }`}
+                    />
+                  </button>
 
-                {isOpen && (
-                  <div className="mt-4 pl-8 sm:pl-12 text-xs sm:text-sm font-light text-white/60 leading-relaxed max-w-3xl">
-                    <p>{faq.answer}</p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  {isOpen && (
+                    <div className="pt-4 pr-10 text-xs sm:text-sm text-[#9C9488] font-light leading-relaxed animate-in fade-in duration-300">
+                      <p>{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* Direct #concierge Private Consultation Form */}
-      <section id="concierge" className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 scroll-mt-24">
+      {/* Private Concierge Inquiry Form */}
+      <section id="concierge" className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           <div className="lg:col-span-5 space-y-6">
-            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 block font-light">
-              DIRECT APPOINTMENTS
+            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#C8A87A] block font-light">
+              DIRECT HANDOVER
             </span>
-            <h2 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.18em] uppercase leading-snug">
-              REQUEST A PRIVATE SALON CONSULTATION
+
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#F3EFE6] font-light tracking-wide uppercase leading-snug">
+              Connect With The Private Concierge
             </h2>
-            <p className="font-sans text-xs sm:text-sm text-white/60 font-light leading-relaxed">
-              Complete the inquiry form to open a direct dialogue with our Hyderabad Concierge via verified WhatsApp. Swatch folios and private showroom visits are scheduled upon review.
+
+            <p className="font-sans text-xs sm:text-sm text-[#9C9488] font-light leading-relaxed">
+              Submit your inquiry directly to our studio team in Hyderabad via WhatsApp or copy the brief for personal correspondence. All consultations are handled with utmost discretion.
             </p>
 
-            <div className="pt-6 border-t border-white/10 space-y-3 text-xs font-sans text-white/60">
+            <div className="space-y-3 pt-4 text-xs font-light text-[#9C9488] border-t border-[#F3EFE6]/10">
               <div>
-                <span className="text-white uppercase tracking-wider text-[10px] block font-light">ATELIER DIRECT WHATSAPP:</span>
-                <span className="font-light">{ATELIER_CONFIG.whatsappConciergeNumber}</span>
+                <span className="text-[#F3EFE6] uppercase tracking-wider block font-light">ATELIER CONCIERGE:</span>
+                <span>{ATELIER_CONFIG.whatsappConciergeNumber}</span>
               </div>
               <div>
-                <span className="text-white uppercase tracking-wider text-[10px] block font-light">STUDIO LOCATION:</span>
-                <span className="font-light">Banjara Hills, Hyderabad, India</span>
+                <span className="text-[#F3EFE6] uppercase tracking-wider block font-light">PRIMARY STUDIO:</span>
+                <span>{ATELIER_CONFIG.location}</span>
+              </div>
+              <div>
+                <span className="text-[#F3EFE6] uppercase tracking-wider block font-light">COMMUNICATION HOURS:</span>
+                <span>Monday &ndash; Saturday, 10:00 AM &ndash; 7:00 PM IST</span>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-[#151515] border border-white/15 p-8 sm:p-12 space-y-6">
+          <div className="lg:col-span-7 bg-[#171513] border border-[#F3EFE6]/12 rounded-2xl p-8 sm:p-12 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-[10px] tracking-[0.25em] uppercase text-white/50 font-light">
+                <label className="block text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
                   PATRON NAME
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Lady Katherine Sterling"
-                  className="w-full bg-[#1E1E1E] border border-white/15 px-4 py-3.5 text-xs text-white placeholder-white/30 focus-visible:outline-none focus-visible:border-white font-light"
+                  placeholder="Enter your name"
+                  className="w-full bg-[#201D1A] border border-[#F3EFE6]/15 rounded-xl px-4 py-3.5 text-xs text-[#F3EFE6] placeholder-[#9C9488]/40 focus-visible:outline-none focus-visible:border-[#C8A87A] font-light"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[10px] tracking-[0.25em] uppercase text-white/50 font-light">
+                <label className="block text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
                   EMAIL ADDRESS
                 </label>
                 <input
@@ -263,19 +266,19 @@ export default function PatronagePage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="patron@domain.com"
-                  className="w-full bg-[#1E1E1E] border border-white/15 px-4 py-3.5 text-xs text-white placeholder-white/30 focus-visible:outline-none focus-visible:border-white font-light"
+                  className="w-full bg-[#201D1A] border border-[#F3EFE6]/15 rounded-xl px-4 py-3.5 text-xs text-[#F3EFE6] placeholder-[#9C9488]/40 focus-visible:outline-none focus-visible:border-[#C8A87A] font-light"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[10px] tracking-[0.25em] uppercase text-white/50 font-light">
+              <label className="block text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
                 INQUIRY TOPIC
               </label>
               <select
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="w-full bg-[#1E1E1E] border border-white/15 px-4 py-3.5 text-xs text-white focus-visible:outline-none focus-visible:border-white font-light"
+                className="w-full bg-[#201D1A] border border-[#F3EFE6]/15 rounded-xl px-4 py-3.5 text-xs text-[#F3EFE6] focus-visible:outline-none focus-visible:border-[#C8A87A] font-light"
               >
                 <option value="Bespoke Silhouette Consultation">Bespoke Silhouette Consultation</option>
                 <option value="Yarn Swatch Box Dispatch">Yarn Swatch Box Dispatch</option>
@@ -286,7 +289,7 @@ export default function PatronagePage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[10px] tracking-[0.25em] uppercase text-white/50 font-light">
+              <label className="block text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
                 SPECIFICATIONS / NOTES
               </label>
               <textarea
@@ -294,7 +297,7 @@ export default function PatronagePage() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Detail preferred palettes, room dimensions, or bespoke architectural requirements..."
-                className="w-full bg-[#1E1E1E] border border-white/15 p-4 text-xs text-white placeholder-white/30 focus-visible:outline-none focus-visible:border-white font-light resize-none"
+                className="w-full bg-[#201D1A] border border-[#F3EFE6]/15 rounded-xl p-4 text-xs text-[#F3EFE6] placeholder-[#9C9488]/40 focus-visible:outline-none focus-visible:border-[#C8A87A] font-light resize-none"
               />
             </div>
 
@@ -303,18 +306,18 @@ export default function PatronagePage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:flex-1 inline-flex items-center justify-center gap-3 rounded-full bg-white text-black hover:bg-white/85 py-3.5 px-6 text-[11px] font-light tracking-[0.22em] uppercase transition-all"
+                className="w-full sm:flex-1 inline-flex items-center justify-center gap-3 rounded-full bg-[#F3EFE6] text-[#0E0D0C] hover:bg-white py-3.5 px-6 text-[11px] font-light tracking-[0.22em] uppercase transition-all shadow-md"
               >
-                <MessageSquare className="w-4 h-4" />
+                <MessageSquare className="w-4 h-4 text-[#0E0D0C]" />
                 <span>OPEN CONCIERGE WHATSAPP</span>
               </a>
 
               <button
                 type="button"
                 onClick={handleCopyInquiry}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-white/60 bg-transparent py-3.5 px-6 text-[11px] font-light tracking-[0.22em] uppercase text-white hover:bg-white hover:text-black transition-all"
+                className="btn-stitched w-full sm:w-auto py-3.5 px-6 text-[11px]"
               >
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-[#C8A87A]" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? "COPIED BRIEF" : "COPY BRIEF"}</span>
               </button>
             </div>
@@ -332,10 +335,10 @@ export default function PatronagePage() {
             image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=85&w=1200&auto=format&fit=crop",
           },
           {
-            title: "3D BOUQUET CONFIGURATOR",
-            description: "Interact with living fiber swatches and reactive studio lighting in real-time 3D.",
-            href: "/bespoke/configure",
-            image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=85&w=1200&auto=format&fit=crop",
+            title: "THE COMMISSION TABLE",
+            description: "Curate living fibers, hand-dyed palettes, and bespoke dimensions for custom commissions.",
+            href: "/bespoke/commission",
+            image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=85&w=1200&auto=format&fit=crop",
           },
           {
             title: "THE ATELIER MANIFESTO",

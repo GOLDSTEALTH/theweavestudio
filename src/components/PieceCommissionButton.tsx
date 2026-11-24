@@ -15,16 +15,17 @@ export function PieceCommissionButton({ silhouetteId }: Props) {
 
   const handleCommissionClick = () => {
     setSelectedSilhouette(silhouetteId);
-    router.push(`/bespoke/configure?silhouette=${silhouetteId}`);
+    router.push(`/bespoke/commission?silhouette=${silhouetteId}`);
   };
 
   return (
     <button
       onClick={handleCommissionClick}
-      className="w-full flex items-center justify-center gap-3 rounded-full border border-white/60 bg-transparent px-8 py-4 text-[11px] font-light tracking-[0.22em] uppercase text-white transition-all duration-500 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+      className="btn-stitched w-full py-4 text-[11px] font-light tracking-[0.22em] uppercase focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C8A87A]"
     >
+      <span className="stitch-dot" />
       <span>COMMISSION THIS SILHOUETTE</span>
-      <ArrowUpRight strokeWidth={1.25} className="w-4 h-4" />
+      <ArrowUpRight strokeWidth={1.25} className="w-4 h-4 ml-1" />
     </button>
   );
 }

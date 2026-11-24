@@ -7,6 +7,7 @@ import { VaultDrawer } from "@/components/VaultDrawer";
 import { Footer } from "@/components/Footer";
 import { ContinueYourJourney } from "@/components/ContinueYourJourney";
 import { ATELIER_STORIES, ATELIER_CONFIG } from "@/data/atelier";
+import { WeaveReveal } from "@/components/motion/WeaveReveal";
 
 export const metadata: Metadata = {
   title: "The Atelier — Inspiring Permanence",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function AtelierPage() {
   return (
-    <main className="min-h-screen bg-[#000000] text-white">
+    <main className="min-h-screen bg-[#0E0D0C] text-[#F3EFE6]">
       <Navbar />
       <VaultDrawer />
 
@@ -31,58 +32,59 @@ export default function AtelierPage() {
             sizes="100vw"
             className="object-cover object-center filter brightness-[0.55] contrast-[1.08]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-[#0E0D0C]/30 to-[#0E0D0C]/60" />
         </div>
 
         <div className="h-20" />
 
         <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 text-center space-y-6 my-auto">
-          <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-white/70">
+          <span className="block font-sans text-[11px] sm:text-xs font-light tracking-[0.28em] uppercase text-[#C8A87A]">
             THE ATELIER — INSPIRING PERMANENCE
           </span>
 
-          <h1 className="font-sans text-3xl sm:text-5xl lg:text-[68px] font-light tracking-[0.18em] uppercase text-white leading-tight max-w-4xl mx-auto">
-            THE SANCTUARY OF THE SINGLE HOOK
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-[70px] font-light tracking-tight text-[#F3EFE6] leading-tight max-w-4xl mx-auto">
+            The Sanctuary of the Single Hook
           </h1>
 
-          <p className="font-sans text-xs sm:text-sm font-light tracking-wide text-white/70 max-w-xl mx-auto leading-relaxed">
+          <p className="font-sans text-xs sm:text-sm font-light tracking-wide text-[#9C9488] max-w-xl mx-auto leading-relaxed">
             Founded in Hyderabad, The Weave Studio preserves the unhurried discipline of haute crochet. A dedication to structural geometry, living natural fibers, and generational permanence.
           </p>
 
           <div className="pt-4">
             <Link
-              href="/bespoke/configure"
-              className="inline-block rounded-full border border-white/60 bg-transparent px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase text-white transition-all duration-500 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              href="/bespoke/commission"
+              className="btn-stitched px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase"
             >
-              COMMISSION IN 3D
+              <span className="stitch-dot" />
+              <span>THE COMMISSION TABLE</span>
             </Link>
           </div>
         </div>
 
-        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+        <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9C9488] font-light">
           <span>{ATELIER_CONFIG.studioName} / {ATELIER_CONFIG.founded}</span>
-          <span>BANJARA HILLS, HYDERABAD</span>
+          <span>HYDERABAD, INDIA</span>
         </div>
       </section>
 
       {/* Brand Manifesto Overview Section */}
-      <section className="py-24 sm:py-32 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-white/15">
+      <section className="py-24 sm:py-32 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 border-b border-[#F3EFE6]/12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           <div className="lg:col-span-5 space-y-4">
-            <span className="font-sans text-[10px] sm:text-[11px] tracking-[0.28em] uppercase text-white/50 block font-light">
+            <span className="font-sans text-[10px] sm:text-[11px] tracking-[0.28em] uppercase text-[#C8A87A] block font-light">
               THE MANIFESTO
             </span>
-            <h2 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.18em] uppercase leading-snug">
-              WHY CROCHET REMAINS UNCOMPUTABLE
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#F3EFE6] font-light tracking-wide uppercase leading-snug">
+              Why Crochet Remains Uncomputable
             </h2>
           </div>
 
-          <div className="lg:col-span-7 space-y-6 text-sm font-light leading-relaxed text-white/70">
-            <p className="text-white text-base sm:text-lg leading-relaxed">
+          <div className="lg:col-span-7 space-y-6 text-sm font-light leading-relaxed text-[#9C9488]">
+            <p className="font-serif text-lg sm:text-xl text-[#F3EFE6] leading-relaxed">
               Every revolution in textiles over the past two centuries has been driven by automation—from the Jacquard loom to modern flatbed computerized knitting. Yet crochet stands solitary. No machine on Earth can execute a single double-crochet loop through an existing stitch.
             </p>
             <p>
-              This computational impossibility is our greatest privilege. It ensures that every centimeter of fabric leaving The Weave Studio is an undivided document of human muscle memory. Over eighty to one hundred fifty hours, an artisan maintains unwavering 0.05-Newton tension tolerances, crafting objects of monumental architectural authority.
+              This computational impossibility is our greatest privilege. It ensures that every centimeter of fabric leaving The Weave Studio is an undivided document of human muscle memory. Over eighty to one hundred fifty hours, an artisan maintains unwavering tension tolerances, crafting objects of monumental architectural authority.
             </p>
           </div>
         </div>
@@ -90,16 +92,16 @@ export default function AtelierPage() {
 
       {/* Asymmetric Full-Width Feature Story Section (ATELIER SERIES) */}
       <section className="py-24 sm:py-36 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 space-y-28 sm:space-y-40">
-        <div className="border-b border-white/15 pb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="border-b border-[#F3EFE6]/12 pb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-2">
-            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/50 block font-light">
+            <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#C8A87A] block font-light">
               ATELIER SERIES
             </span>
-            <h2 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.18em] uppercase">
-              CHRONICLES OF CRAFT
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#F3EFE6] font-light tracking-wide uppercase">
+              Chronicles of Craft
             </h2>
           </div>
-          <span className="font-sans text-[10px] tracking-[0.25em] text-white/40 uppercase font-light">
+          <span className="font-sans text-[10px] tracking-[0.25em] text-[#9C9488] uppercase font-light">
             04 CHAPTERS
           </span>
         </div>
@@ -116,17 +118,19 @@ export default function AtelierPage() {
             >
               {/* Photo Column */}
               <div
-                className={`relative aspect-[4/3] sm:aspect-[16/10] w-full bg-[#151515] border border-white/15 overflow-hidden ${
+                className={`relative aspect-[4/3] sm:aspect-[16/10] w-full bg-[#171513] border border-[#F3EFE6]/12 overflow-hidden rounded-2xl ${
                   isEven ? "lg:col-span-7" : "lg:col-span-7 lg:col-start-6"
                 }`}
               >
-                <Image
-                  src={story.image}
-                  alt={story.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 55vw"
-                  className="object-cover object-center filter brightness-[0.88] hover:scale-105 transition-transform duration-700"
-                />
+                <WeaveReveal delay={idx * 0.1} className="w-full h-full">
+                  <Image
+                    src={story.image}
+                    alt={story.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    className="object-cover object-center filter brightness-[0.92] hover:scale-105 transition-transform duration-700"
+                  />
+                </WeaveReveal>
               </div>
 
               {/* Editorial Text Column */}
@@ -135,27 +139,27 @@ export default function AtelierPage() {
                   isEven ? "lg:col-span-5" : "lg:col-span-5 lg:col-start-1"
                 }`}
               >
-                <div className="flex items-center gap-3 text-white/40 font-light text-xs tracking-[0.28em] uppercase">
+                <div className="flex items-center gap-3 text-[#C8A87A] font-light text-xs tracking-[0.28em] uppercase">
                   <span>CHAPTER {story.number}</span>
                   <span>/</span>
                   <span>{story.tag}</span>
                 </div>
 
-                <h3 className="font-sans text-2xl sm:text-3xl lg:text-4xl text-white font-light tracking-[0.16em] uppercase leading-snug">
+                <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#F3EFE6] font-light tracking-wide leading-snug">
                   {story.title}
                 </h3>
 
-                <p className="font-sans text-sm font-light text-white/80 italic leading-relaxed">
+                <p className="font-serif text-base font-light text-[#F3EFE6]/90 italic leading-relaxed">
                   {story.subtitle}
                 </p>
 
-                <div className="border-l border-white/25 pl-6 py-2 my-6">
-                  <p className="font-sans text-xs sm:text-sm font-light tracking-wide text-white/90 leading-relaxed">
+                <div className="border-l border-[#C8A87A]/50 pl-6 py-2 my-6">
+                  <p className="font-serif text-lg font-light tracking-wide text-[#F3EFE6] leading-relaxed italic">
                     &ldquo;{story.pullquote}&rdquo;
                   </p>
                 </div>
 
-                <div className="space-y-4 text-xs font-light text-white/60 leading-relaxed">
+                <div className="space-y-4 text-xs font-light text-[#9C9488] leading-relaxed">
                   {story.body.map((p, pIdx) => (
                     <p key={pIdx}>{p}</p>
                   ))}
