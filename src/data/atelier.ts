@@ -51,6 +51,22 @@ export interface ColorPalette {
   narrative: string;
 }
 
+export interface BespokeVessel {
+  id: string;
+  name: string;
+  subtitle: string;
+  description: string;
+  finishNote: string;
+}
+
+export interface BespokeAccent {
+  id: string;
+  name: string;
+  subtitle: string;
+  description: string;
+  materialNote: string;
+}
+
 export interface VaultPiece {
   id: string;
   editionCode: string;
@@ -387,6 +403,54 @@ export const BESPOKE_OPTIONS = {
       narrative: "Muted dry sage greens paired with damp slate for a tranquil organic harmony.",
     },
   ] as ColorPalette[],
+
+  vessels: [
+    {
+      id: "stoneware-vessel",
+      name: "Blackened Stoneware Vessel",
+      subtitle: "Matte Ceramic Architecture",
+      description: "Matte kiln-fired ceramic cylinder with gold hairline rim and weighted base.",
+      finishNote: "Hand-thrown coarse stoneware with volcanic slip glaze.",
+    },
+    {
+      id: "linen-wrap",
+      name: "Sculpted Linen Wrap",
+      subtitle: "Pleated Fiber Presentation",
+      description: "Hand-pleated Belgian flax cone secured with tied satin cords.",
+      finishNote: "Raw unbleached linen with fringed architectural folds.",
+    },
+    {
+      id: "brass-collar",
+      name: "Brushed Brass Ribbon Tie",
+      subtitle: "Minimalist Stem Binding",
+      description: "Minimalist hand-bound stems secured with a patinated brass cuff.",
+      finishNote: "Solid brass cylinder with hand-brushed satin luster.",
+    },
+  ] as BespokeVessel[],
+
+  accents: [
+    {
+      id: "eucalyptus-sprigs",
+      name: "Crochet Eucalyptus Sprigs",
+      subtitle: "Hand-Looped Foliage",
+      description: "Sage-tinted organic crochet discs mounted on wire armatures.",
+      materialNote: "Mercerized botanical thread with matte powdery finish.",
+    },
+    {
+      id: "champagne-filaments",
+      name: "Champagne Brass Filaments",
+      subtitle: "Metallic Micro-Accents",
+      description: "Micro-wired metallic botanical accents with hand-set pearl beads.",
+      materialNote: "Brushed brass filaments and vintage glass pearls.",
+    },
+    {
+      id: "pure-blooms",
+      name: "Pure Monolith Blooms",
+      subtitle: "Unadorned Sculpture",
+      description: "Unadorned sculptural flower composition celebrating pure stitch geometry.",
+      materialNote: "Zero foliage or metallic additions; absolute structural focus.",
+    },
+  ] as BespokeAccent[],
 };
 
 export const VAULT_PIECES: VaultPiece[] = [
@@ -454,6 +518,8 @@ export function createWhatsAppCommissionLink(params: {
   clientName: string;
   notes: string;
   leadTime?: string;
+  vesselName?: string;
+  accentName?: string;
 }): string {
   const number = ATELIER_CONFIG.whatsappConciergeNumber.replace(/[^0-9]/g, "");
   const text =
@@ -464,6 +530,8 @@ export function createWhatsAppCommissionLink(params: {
     `Estimated Lead Time: ${params.leadTime || "4 to 6 Weeks"}\n` +
     `Tactile Fiber: ${params.fiberName}\n` +
     `Curated Palette: ${params.paletteName}\n` +
+    `Presentation Vessel: ${params.vesselName || "Blackened Stoneware Vessel"}\n` +
+    `Botanical Accents: ${params.accentName || "Crochet Eucalyptus Sprigs"}\n` +
     `Notes / Specifications: ${params.notes.trim() || "Standard Atelier Specifications"}\n` +
     `----------------------------------------\n` +
     `I would like to request a private consultation regarding this bespoke commission.`;
