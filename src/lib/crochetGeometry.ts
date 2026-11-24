@@ -416,6 +416,7 @@ export function buildCrochetRose(
     sepal.rotation.y = -angle + Math.PI / 2;
     sepal.rotation.x = 1.75; // reflexed downward against the stem
     sepal.castShadow = true;
+    sepal.receiveShadow = true;
     roseGroup.add(sepal);
   }
 
@@ -484,6 +485,8 @@ export function buildCrochetTulip(
   // Calyx base
   const calyxMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.04, 0.12, 8), calyxMat);
   calyxMesh.position.y = -0.04;
+  calyxMesh.castShadow = true;
+  calyxMesh.receiveShadow = true;
   tulipGroup.add(calyxMesh);
 
   return tulipGroup;
@@ -502,6 +505,7 @@ export function buildCrochetBud(
   const budMesh = new THREE.Mesh(budGeom, bloomMat);
   budMesh.position.y = 0.18;
   budMesh.castShadow = true;
+  budMesh.receiveShadow = true;
   budGroup.add(budMesh);
 
   const sepalGeom = createSculptedLeafGeometry({
@@ -518,6 +522,7 @@ export function buildCrochetBud(
     sepal.rotation.y = -angle + Math.PI / 2;
     sepal.rotation.x = 0.18;
     sepal.castShadow = true;
+    sepal.receiveShadow = true;
     budGroup.add(sepal);
   }
 
@@ -562,6 +567,8 @@ export function buildStonewareVessel(
   const collarGeom = new THREE.CylinderGeometry(0.432, 0.432, 0.024, 36, 1, true);
   const collarMesh = new THREE.Mesh(collarGeom, brassMat);
   collarMesh.position.y = 0.42;
+  collarMesh.castShadow = true;
+  collarMesh.receiveShadow = true;
   group.add(collarMesh);
 
   return group;
@@ -618,6 +625,7 @@ export function buildLinenWrap(
   const waistCuff = new THREE.Mesh(waistCuffGeom, ribbonMat);
   waistCuff.position.set(0, -0.32, 0);
   waistCuff.castShadow = true;
+  waistCuff.receiveShadow = true;
   group.add(waistCuff);
 
   // Bow loops
@@ -625,16 +633,22 @@ export function buildLinenWrap(
   const loop1 = new THREE.Mesh(bowLoopGeom, ribbonMat);
   loop1.position.set(0.1, -0.32, 0.25);
   loop1.rotation.set(0.2, 0.4, 0.5);
+  loop1.castShadow = true;
+  loop1.receiveShadow = true;
   group.add(loop1);
 
   const loop2 = new THREE.Mesh(bowLoopGeom, ribbonMat);
   loop2.position.set(-0.1, -0.32, 0.25);
   loop2.rotation.set(0.2, -0.4, -0.5);
+  loop2.castShadow = true;
+  loop2.receiveShadow = true;
   group.add(loop2);
 
   // Bow knot
   const knot = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 10), ribbonMat);
   knot.position.set(0, -0.32, 0.27);
+  knot.castShadow = true;
+  knot.receiveShadow = true;
   group.add(knot);
 
   // Draped trailing ribbon tails
@@ -651,7 +665,9 @@ export function buildLinenWrap(
   const tail1 = new THREE.Mesh(new THREE.TubeGeometry(tail1Curve, 14, 0.016, 8, false), ribbonMat);
   const tail2 = new THREE.Mesh(new THREE.TubeGeometry(tail2Curve, 14, 0.016, 8, false), ribbonMat);
   tail1.castShadow = true;
+  tail1.receiveShadow = true;
   tail2.castShadow = true;
+  tail2.receiveShadow = true;
   group.add(tail1);
   group.add(tail2);
 
@@ -687,17 +703,20 @@ export function buildBrassCollar(
   const cuffMesh = new THREE.Mesh(cuffGeom, brassMat);
   cuffMesh.position.y = -0.32;
   cuffMesh.castShadow = true;
+  cuffMesh.receiveShadow = true;
   group.add(cuffMesh);
 
   // Fine horizontal brass wire bands
   const band1 = new THREE.Mesh(new THREE.TorusGeometry(0.218, 0.008, 8, 36), brassMat);
   band1.position.y = -0.27;
   band1.rotation.x = Math.PI / 2;
+  band1.receiveShadow = true;
   group.add(band1);
 
   const band2 = new THREE.Mesh(new THREE.TorusGeometry(0.218, 0.008, 8, 36), brassMat);
   band2.position.y = -0.37;
   band2.rotation.x = Math.PI / 2;
+  band2.receiveShadow = true;
   group.add(band2);
 
   return group;
@@ -754,6 +773,7 @@ export function buildEucalyptusSprigs(
     const curve = new THREE.CatmullRomCurve3(cfg.curve);
     const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.012, 8, false), wireMat);
     tube.castShadow = true;
+    tube.receiveShadow = true;
     group.add(tube);
 
     for (let p = 1; p <= cfg.pairs; p++) {
@@ -770,6 +790,7 @@ export function buildEucalyptusSprigs(
       leftLeaf.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
       leftLeaf.rotateZ(0.3);
       leftLeaf.castShadow = true;
+      leftLeaf.receiveShadow = true;
       group.add(leftLeaf);
 
       // Right leaf
@@ -779,6 +800,7 @@ export function buildEucalyptusSprigs(
       rightLeaf.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal.clone().negate());
       rightLeaf.rotateZ(-0.3);
       rightLeaf.castShadow = true;
+      rightLeaf.receiveShadow = true;
       group.add(rightLeaf);
     }
   });
@@ -827,6 +849,7 @@ export function buildChampagneFilaments(
     const curve = new THREE.CatmullRomCurve3(pts);
     const wire = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 0.007, 6, false), brassMat);
     wire.castShadow = true;
+    wire.receiveShadow = true;
     group.add(wire);
 
     const tip = pts[pts.length - 1];
@@ -835,12 +858,15 @@ export function buildChampagneFilaments(
     const cup = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.05, 6, 1, true), brassMat);
     cup.position.copy(tip);
     cup.rotation.x = Math.PI;
+    cup.castShadow = true;
+    cup.receiveShadow = true;
     group.add(cup);
 
     // Luster freshwater pearl bud
     const pearl = new THREE.Mesh(new THREE.SphereGeometry(0.042, 16, 16), pearlMat);
     pearl.position.copy(tip).add(new THREE.Vector3(0, 0.035, 0));
     pearl.castShadow = true;
+    pearl.receiveShadow = true;
     group.add(pearl);
   });
 

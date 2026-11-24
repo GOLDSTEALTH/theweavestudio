@@ -182,12 +182,15 @@ export function BespokeStudio() {
               {/* Clean Minimal 1-Row Palette Dot Bar in Stage Footer */}
               <div className="border-t border-white/10 bg-[#121214] px-4 py-3 sm:px-6 sm:py-3.5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-sans text-[9px] tracking-[0.25em] uppercase text-[#9A968E]">
                       PALETTE:
                     </span>
                     <span className="font-sans text-[10px] tracking-wider uppercase text-[#C6A972] font-medium">
                       {currentPalette.name}
+                    </span>
+                    <span className="font-sans text-[8px] tracking-[0.2em] uppercase text-[#9A968E]/70 hidden md:inline">
+                      &bull; {currentPalette.stageTheme.atmosphereLabel}
                     </span>
                   </div>
 

@@ -36,6 +36,35 @@ interface BespokeBouquet3DProps {
 
 type CameraPreset = "STUDIO" | "MACRO" | "CROWN";
 
+function renderBackdropCanvas(
+  canvas: HTMLCanvasElement,
+  centerHex: string,
+  edgeHex: string,
+  floorHex: string
+) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  // Outer studio vignette
+  ctx.fillStyle = edgeHex;
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Soft radial studio spotlight glow behind bouquet
+  const radGrad = ctx.createRadialGradient(256, 220, 25, 256, 220, 270);
+  radGrad.addColorStop(0, centerHex);
+  radGrad.addColorStop(0.55, centerHex + "B3");
+  radGrad.addColorStop(1, edgeHex);
+  ctx.fillStyle = radGrad;
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Studio plinth floor reflection
+  const floorGrad = ctx.createLinearGradient(0, 360, 0, 512);
+  floorGrad.addColorStop(0, "rgba(0,0,0,0)");
+  floorGrad.addColorStop(1, floorHex);
+  ctx.fillStyle = floorGrad;
+  ctx.fillRect(0, 360, 512, 152);
+}
+
 export default function BespokeBouquet3D({
   palette,
   fiber,
@@ -55,14 +84,48 @@ export default function BespokeBouquet3D({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const isTransitioningCameraRef = useRef(false);
   const isUserInteractingRef = useRef(false);
-  const targetCamPos = useRef(new THREE.Vector3(0, 1.15, 3.4));
-  const targetCamLook = useRef(new THREE.Vector3(0, 0.72, 0));
 
-  // Dynamic colors with luminance lifting for dark palettes
+  // Centered architectural camera framing
+  const targetCamPos = useRef(new THREE.Vector3(0, 1.05, 3.1));
+  const targetCamLook = useRef(new THREE.Vector3(0, 0.82, 0));
+
+  // Dynamic yarn colors with luminance lifting for dark palettes
   const currPrimaryCol = useRef(liftYarnAlbedo(palette.primaryHex));
   const currSecondaryCol = useRef(liftYarnAlbedo(palette.secondaryHex));
   const targetPrimaryCol = useRef(liftYarnAlbedo(palette.primaryHex));
   const targetSecondaryCol = useRef(liftYarnAlbedo(palette.secondaryHex));
+
+  // Palette-reactive lighting & stage theme target references
+  const st = palette.stageTheme;
+  const targetKeyLightCol = useRef(new THREE.Color(st.keyLightHex));
+  const targetKeyIntensity = useRef(st.keyIntensity);
+  const targetFillLightCol = useRef(new THREE.Color(st.fillLightHex));
+  const targetFillIntensity = useRef(st.fillIntensity);
+  const targetRimLightCol = useRef(new THREE.Color(st.rimLightHex));
+  const targetRimIntensity = useRef(st.rimIntensity);
+  const targetHemiSkyCol = useRef(new THREE.Color(st.hemiSkyHex));
+  const targetHemiGroundCol = useRef(new THREE.Color(st.hemiGroundHex));
+  const targetHemiIntensity = useRef(st.hemiIntensity);
+  const targetEnvIntensity = useRef(st.envIntensity);
+  const targetPlinthCol = useRef(new THREE.Color(st.plinthHex));
+
+  // Reactive cyclorama backdrop colors
+  const currBgCenterCol = useRef(new THREE.Color(st.bgCenterHex));
+  const currBgEdgeCol = useRef(new THREE.Color(st.bgEdgeHex));
+  const currBgFloorCol = useRef(new THREE.Color(st.bgFloorHex));
+  const targetBgCenterCol = useRef(new THREE.Color(st.bgCenterHex));
+  const targetBgEdgeCol = useRef(new THREE.Color(st.bgEdgeHex));
+  const targetBgFloorCol = useRef(new THREE.Color(st.bgFloorHex));
+
+  // Scene object references
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const keyLightRef = useRef<THREE.DirectionalLight | null>(null);
+  const fillLightRef = useRef<THREE.DirectionalLight | null>(null);
+  const rimLightRef = useRef<THREE.SpotLight | null>(null);
+  const hemiLightRef = useRef<THREE.HemisphereLight | null>(null);
+  const plinthMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const backdropCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const backdropTextureRef = useRef<THREE.CanvasTexture | null>(null);
 
   // Materials and swappable groups
   const primaryMatRef = useRef<THREE.MeshPhysicalMaterial | null>(null);
@@ -71,11 +134,27 @@ export default function BespokeBouquet3D({
   const accentGroupRef = useRef<Record<string, THREE.Group>>({});
   const bouquetRootRef = useRef<THREE.Group | null>(null);
 
-  // 1. Update target colors without re-mounting WebGL
+  // 1. Update target colors & stage lighting theme when palette changes
   useEffect(() => {
     targetPrimaryCol.current.copy(liftYarnAlbedo(palette.primaryHex));
     targetSecondaryCol.current.copy(liftYarnAlbedo(palette.secondaryHex));
-  }, [palette.primaryHex, palette.secondaryHex]);
+
+    const theme = palette.stageTheme;
+    targetKeyLightCol.current.set(theme.keyLightHex);
+    targetKeyIntensity.current = theme.keyIntensity;
+    targetFillLightCol.current.set(theme.fillLightHex);
+    targetFillIntensity.current = theme.fillIntensity;
+    targetRimLightCol.current.set(theme.rimLightHex);
+    targetRimIntensity.current = theme.rimIntensity;
+    targetHemiSkyCol.current.set(theme.hemiSkyHex);
+    targetHemiGroundCol.current.set(theme.hemiGroundHex);
+    targetHemiIntensity.current = theme.hemiIntensity;
+    targetEnvIntensity.current = theme.envIntensity;
+    targetPlinthCol.current.set(theme.plinthHex);
+    targetBgCenterCol.current.set(theme.bgCenterHex);
+    targetBgEdgeCol.current.set(theme.bgEdgeHex);
+    targetBgFloorCol.current.set(theme.bgFloorHex);
+  }, [palette.primaryHex, palette.secondaryHex, palette.stageTheme]);
 
   // 2. Update fiber PBR material parameters dynamically
   useEffect(() => {
@@ -136,16 +215,16 @@ export default function BespokeBouquet3D({
 
     switch (preset) {
       case "STUDIO":
-        targetCamPos.current.set(0, 1.15, 3.4);
-        targetCamLook.current.set(0, 0.72, 0);
+        targetCamPos.current.set(0, 1.05, 3.1);
+        targetCamLook.current.set(0, 0.82, 0);
         break;
       case "MACRO":
-        targetCamPos.current.set(-0.32, 1.05, 1.35);
-        targetCamLook.current.set(-0.05, 0.95, 0.15);
+        targetCamPos.current.set(-0.28, 1.22, 1.22);
+        targetCamLook.current.set(-0.02, 1.08, 0.14);
         break;
       case "CROWN":
-        targetCamPos.current.set(0, 3.2, 0.75);
-        targetCamLook.current.set(0, 0.85, 0);
+        targetCamPos.current.set(0, 2.7, 1.55);
+        targetCamLook.current.set(0, 0.95, 0);
         break;
     }
     isTransitioningCameraRef.current = true;
@@ -162,7 +241,7 @@ export default function BespokeBouquet3D({
       controlsRef.current.target
     );
     const dist = dir.length();
-    const newDist = Math.max(1.2, Math.min(4.8, dist + delta));
+    const newDist = Math.max(1.1, Math.min(4.5, dist + delta));
     dir.setLength(newDist);
     targetCamPos.current.copy(controlsRef.current.target).add(dir);
     targetCamLook.current.copy(controlsRef.current.target);
@@ -189,6 +268,8 @@ export default function BespokeBouquet3D({
     try {
       // 1. Scene & Camera Setup
       scene = new THREE.Scene();
+      sceneRef.current = scene;
+
       camera = new THREE.PerspectiveCamera(
         36,
         container.clientWidth / Math.max(container.clientHeight, 1),
@@ -220,23 +301,18 @@ export default function BespokeBouquet3D({
       const roomEnv = new RoomEnvironment();
       envTargetTexture = pmremGenerator.fromScene(roomEnv, 0.04).texture;
       scene.environment = envTargetTexture;
-      scene.environmentIntensity = 0.55;
+      scene.environmentIntensity = st.envIntensity;
 
-      // 4. Studio Cyclorama Backdrop (soft radial glow behind the bouquet)
+      // 4. Palette-Reactive Studio Cyclorama Backdrop
       const backdropCanvas = document.createElement("canvas");
       backdropCanvas.width = 512;
       backdropCanvas.height = 512;
-      const bCtx = backdropCanvas.getContext("2d");
-      if (bCtx) {
-        const bGrad = bCtx.createRadialGradient(256, 256, 40, 256, 256, 256);
-        bGrad.addColorStop(0, "#191921");
-        bGrad.addColorStop(0.5, "#111116");
-        bGrad.addColorStop(1, "#0A0A0B");
-        bCtx.fillStyle = bGrad;
-        bCtx.fillRect(0, 0, 512, 512);
-      }
+      renderBackdropCanvas(backdropCanvas, st.bgCenterHex, st.bgEdgeHex, st.bgFloorHex);
+      backdropCanvasRef.current = backdropCanvas;
+
       const backdropTexture = new THREE.CanvasTexture(backdropCanvas);
       backdropTexture.colorSpace = THREE.SRGBColorSpace;
+      backdropTextureRef.current = backdropTexture;
       createdTextures.push(backdropTexture);
 
       const backdropGeom = new THREE.SphereGeometry(14, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.55);
@@ -248,47 +324,51 @@ export default function BespokeBouquet3D({
       });
       createdMaterials.push(backdropMat);
       const backdropMesh = new THREE.Mesh(backdropGeom, backdropMat);
-      backdropMesh.position.set(0, -0.5, -2);
+      backdropMesh.position.set(0, -0.4, -2.5);
       scene.add(backdropMesh);
 
-      // 5. Physically Calibrated Studio Lighting
-      const hemiLight = new THREE.HemisphereLight(0xeae4d8, 0x18171c, 0.9);
+      // 5. Physically Calibrated Three-Point Raking Studio Lighting
+      const hemiLight = new THREE.HemisphereLight(st.hemiSkyHex, st.hemiGroundHex, st.hemiIntensity);
       scene.add(hemiLight);
+      hemiLightRef.current = hemiLight;
 
-      // Key Spotlight
-      const keyLight = new THREE.SpotLight(0xfff6e8, 42);
-      keyLight.position.set(2.8, 4.6, 3.6);
-      keyLight.angle = Math.PI / 4;
-      keyLight.penumbra = 0.85;
-      keyLight.decay = 2;
-      keyLight.distance = 14;
+      // Side-Raking Directional Key Light (tight shadow frustum for razor-sharp micro-shadows)
+      const keyLight = new THREE.DirectionalLight(st.keyLightHex, st.keyIntensity);
+      keyLight.position.set(2.8, 4.4, 3.2);
       keyLight.castShadow = true;
-      keyLight.shadow.mapSize.width = 2048;
-      keyLight.shadow.mapSize.height = 2048;
-      keyLight.shadow.bias = -0.0005;
-      keyLight.shadow.normalBias = 0.02;
+      keyLight.shadow.mapSize.set(2048, 2048);
+      keyLight.shadow.camera.near = 0.5;
+      keyLight.shadow.camera.far = 12;
+      keyLight.shadow.camera.left = -1.6;
+      keyLight.shadow.camera.right = 1.6;
+      keyLight.shadow.camera.top = 2.4;
+      keyLight.shadow.camera.bottom = -0.6;
+      keyLight.shadow.bias = -0.0004;
+      keyLight.shadow.normalBias = 0.025;
       scene.add(keyLight);
-      scene.add(keyLight.target);
-      keyLight.target.position.set(0, 0.75, 0);
+      keyLightRef.current = keyLight;
 
-      // Cool Editorial Fill Light
-      const fillLight = new THREE.DirectionalLight(0xc7d4e5, 1.1);
-      fillLight.position.set(-3.5, 2.2, 1.8);
+      // Cool Editorial Fill Light (kept low to preserve deep inter-petal contrast)
+      const fillLight = new THREE.DirectionalLight(st.fillLightHex, st.fillIntensity);
+      fillLight.position.set(-3.5, 2.0, 1.8);
       scene.add(fillLight);
+      fillLightRef.current = fillLight;
 
-      // Champagne Back-Rim Light
-      const rimLight = new THREE.SpotLight(0xdfc18a, 36);
-      rimLight.position.set(-0.6, 3.2, -3.4);
-      rimLight.penumbra = 0.9;
+      // Crisp Back-Rim Spotlight (silhouette halo)
+      const rimLight = new THREE.SpotLight(st.rimLightHex, st.rimIntensity);
+      rimLight.position.set(-0.8, 3.6, -3.2);
+      rimLight.angle = Math.PI / 3;
+      rimLight.penumbra = 0.85;
       rimLight.decay = 2;
       rimLight.distance = 12;
       scene.add(rimLight);
-      rimLight.target.position.set(0, 0.8, 0);
+      rimLight.target.position.set(0, 0.9, 0);
       scene.add(rimLight.target);
+      rimLightRef.current = rimLight;
 
-      // Under-Bloom Soft Warm Bounce
-      const underBounce = new THREE.PointLight(0xf3e8d4, 3.5, 5, 2);
-      underBounce.position.set(0, 0.2, 1.6);
+      // Subtle under-bloom soft bounce
+      const underBounce = new THREE.PointLight(0xf3e8d4, 0.6, 4, 2);
+      underBounce.position.set(0, 0.25, 1.4);
       scene.add(underBounce);
 
       // 6. Grounded Plinth & Pedestal
@@ -296,11 +376,12 @@ export default function BespokeBouquet3D({
       plinthGroup.position.set(0, 0, 0);
 
       const plinthMat = new THREE.MeshStandardMaterial({
-        color: 0x141418,
+        color: new THREE.Color(st.plinthHex),
         roughness: 0.78,
         metalness: 0.1,
       });
       createdMaterials.push(plinthMat);
+      plinthMatRef.current = plinthMat;
 
       const brassRingMat = new THREE.MeshStandardMaterial({
         color: 0xc6a972,
@@ -330,6 +411,7 @@ export default function BespokeBouquet3D({
       createdGeometries.push(ringGeom);
       const hairlineRing = new THREE.Mesh(ringGeom, brassRingMat);
       hairlineRing.position.y = 0.16;
+      hairlineRing.receiveShadow = true;
       plinthGroup.add(hairlineRing);
 
       // Contact Shadow Decal
@@ -469,7 +551,7 @@ export default function BespokeBouquet3D({
       });
       createdMaterials.push(pearlMat);
 
-      // 8. Bouquet Root Group (cleanly grounded on top of the plinth)
+      // 8. Bouquet Root Group (grounded on top of the plinth)
       const bouquetRoot = new THREE.Group();
       bouquetRoot.position.set(0, 0.42, 0);
       bouquetRootRef.current = bouquetRoot;
@@ -505,7 +587,7 @@ export default function BespokeBouquet3D({
       flowersGroup.add(tulip1);
 
       const tulip2 = buildCrochetTulip(secondaryMat, stamenMat, foliageMat, 0.6);
-      tul2Position: tulip2.position.set(0.32, 1.12, -0.18);
+      tulip2.position.set(0.32, 1.12, -0.18);
       tulip2.rotation.set(-0.12, 0.4, 0.1);
       tulip2.scale.set(0.94, 0.94, 0.94);
       flowersGroup.add(tulip2);
@@ -561,6 +643,7 @@ export default function BespokeBouquet3D({
         leafMesh.rotation.set(cfg.rot[0], cfg.rot[1], cfg.rot[2]);
         leafMesh.scale.set(cfg.s, cfg.s, cfg.s);
         leafMesh.castShadow = true;
+        leafMesh.receiveShadow = true;
         flowersGroup.add(leafMesh);
       });
 
@@ -579,6 +662,7 @@ export default function BespokeBouquet3D({
         createdGeometries.push(tubeGeom);
         const tubeMesh = new THREE.Mesh(tubeGeom, foliageMat);
         tubeMesh.castShadow = true;
+        tubeMesh.receiveShadow = true;
         flowersGroup.add(tubeMesh);
       });
 
@@ -680,7 +764,7 @@ export default function BespokeBouquet3D({
 
         const damping = 1 - Math.exp(-6 * dt);
 
-        // Smooth delta-time color lerping
+        // Smooth delta-time yarn color lerping
         currPrimaryCol.current.lerp(targetPrimaryCol.current, damping);
         currSecondaryCol.current.lerp(targetSecondaryCol.current, damping);
 
@@ -689,6 +773,80 @@ export default function BespokeBouquet3D({
         }
         if (secondaryMatRef.current) {
           secondaryMatRef.current.color.copy(currSecondaryCol.current);
+        }
+
+        // Palette-reactive lighting lerp
+        if (keyLightRef.current) {
+          keyLightRef.current.color.lerp(targetKeyLightCol.current, damping);
+          keyLightRef.current.intensity = THREE.MathUtils.lerp(
+            keyLightRef.current.intensity,
+            targetKeyIntensity.current,
+            damping
+          );
+        }
+        if (fillLightRef.current) {
+          fillLightRef.current.color.lerp(targetFillLightCol.current, damping);
+          fillLightRef.current.intensity = THREE.MathUtils.lerp(
+            fillLightRef.current.intensity,
+            targetFillIntensity.current,
+            damping
+          );
+        }
+        if (rimLightRef.current) {
+          rimLightRef.current.color.lerp(targetRimLightCol.current, damping);
+          rimLightRef.current.intensity = THREE.MathUtils.lerp(
+            rimLightRef.current.intensity,
+            targetRimIntensity.current,
+            damping
+          );
+        }
+        if (hemiLightRef.current) {
+          hemiLightRef.current.color.lerp(targetHemiSkyCol.current, damping);
+          hemiLightRef.current.groundColor.lerp(targetHemiGroundCol.current, damping);
+          hemiLightRef.current.intensity = THREE.MathUtils.lerp(
+            hemiLightRef.current.intensity,
+            targetHemiIntensity.current,
+            damping
+          );
+        }
+        if (sceneRef.current) {
+          sceneRef.current.environmentIntensity = THREE.MathUtils.lerp(
+            sceneRef.current.environmentIntensity,
+            targetEnvIntensity.current,
+            damping
+          );
+        }
+        if (plinthMatRef.current) {
+          plinthMatRef.current.color.lerp(targetPlinthCol.current, damping);
+        }
+
+        // Palette-reactive cyclorama backdrop lerp
+        const cCenter = currBgCenterCol.current;
+        const tCenter = targetBgCenterCol.current;
+        const cEdge = currBgEdgeCol.current;
+        const tEdge = targetBgEdgeCol.current;
+        const bgDiff =
+          Math.abs(cCenter.r - tCenter.r) +
+          Math.abs(cCenter.g - tCenter.g) +
+          Math.abs(cCenter.b - tCenter.b) +
+          Math.abs(cEdge.r - tEdge.r) +
+          Math.abs(cEdge.g - tEdge.g) +
+          Math.abs(cEdge.b - tEdge.b);
+
+        if (bgDiff > 0.003) {
+          currBgCenterCol.current.lerp(targetBgCenterCol.current, damping * 1.5);
+          currBgEdgeCol.current.lerp(targetBgEdgeCol.current, damping * 1.5);
+          currBgFloorCol.current.lerp(targetBgFloorCol.current, damping * 1.5);
+
+          if (backdropCanvasRef.current && backdropTextureRef.current) {
+            renderBackdropCanvas(
+              backdropCanvasRef.current,
+              "#" + currBgCenterCol.current.getHexString(),
+              "#" + currBgEdgeCol.current.getHexString(),
+              "#" + currBgFloorCol.current.getHexString()
+            );
+            backdropTextureRef.current.needsUpdate = true;
+          }
         }
 
         // Camera lerping ONLY when a preset or zoom button is transitioning
@@ -770,16 +928,22 @@ export default function BespokeBouquet3D({
         }`}
       />
 
-      {/* Non-Floral Silhouette Badge Warning */}
-      {!isBotanical && (
-        <div className="absolute top-4 left-4 z-20 pointer-events-none">
+      {/* Atmospheric Gallery Tag & Non-Floral Silhouette Badge */}
+      <div className="absolute top-4 left-4 z-20 pointer-events-none flex flex-col gap-2">
+        <div className="px-3 py-1.5 bg-[#0A0A0B]/90 border border-white/10 backdrop-blur-md">
+          <span className="font-sans text-[8px] sm:text-[9px] tracking-[0.25em] uppercase text-[#C6A972] font-medium">
+            ATMOSPHERE: {palette.stageTheme.atmosphereLabel}
+          </span>
+        </div>
+
+        {!isBotanical && (
           <div className="px-3 py-1.5 bg-[#0A0A0B]/90 border border-[#C6A972]/30 backdrop-blur-md">
             <span className="font-sans text-[9px] tracking-[0.25em] uppercase text-[#C6A972]">
               LIVE FIBER &amp; PALETTE PREVIEW ON BOTANICAL STUDY
             </span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Camera Presets & HUD Controls */}
       <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2 pointer-events-auto">
@@ -834,7 +998,7 @@ export default function BespokeBouquet3D({
             <RotateCw className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => handleZoom(-0.5)}
+            onClick={() => handleZoom(-0.4)}
             className="p-1.5 text-[#9A968E] hover:text-[#F4F1EA] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
             title="Zoom In"
             aria-label="Zoom In"
@@ -842,7 +1006,7 @@ export default function BespokeBouquet3D({
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => handleZoom(0.5)}
+            onClick={() => handleZoom(0.4)}
             className="p-1.5 text-[#9A968E] hover:text-[#F4F1EA] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
             title="Zoom Out"
             aria-label="Zoom Out"
@@ -857,7 +1021,7 @@ export default function BespokeBouquet3D({
         <div className="flex items-center gap-2 text-[9px] font-sans tracking-[0.25em] uppercase text-[#9A968E]/60">
           <span>HYDERABAD STUDIO STAGE</span>
           <span>&bull;</span>
-          <span>PBR TACTILE SIMULATION</span>
+          <span>REACTIVE LIGHTING ENGINE</span>
         </div>
       </div>
     </div>

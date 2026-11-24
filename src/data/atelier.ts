@@ -42,6 +42,24 @@ export interface TactileFiber {
   description: string;
 }
 
+export interface PaletteStageTheme {
+  atmosphereLabel: string;   // e.g. "WARM TRAVERTINE GALLERY"
+  bgCenterHex: string;       // Soft radial spotlight glow behind the bouquet
+  bgEdgeHex: string;         // Outer studio vignette
+  bgFloorHex: string;        // Lower cyclorama reflection tone
+  plinthHex: string;         // Pedestal material tint
+  keyLightHex: string;       // Main directional shadow-casting side-raking key
+  keyIntensity: number;      // e.g. 2.8 - 3.6
+  fillLightHex: string;      // Subtle opposite fill (kept low for deep contrast)
+  fillIntensity: number;     // e.g. 0.35 - 0.55
+  rimLightHex: string;       // Crisp back-edge silhouette rim light
+  rimIntensity: number;      // e.g. 2.2 - 3.2
+  hemiSkyHex: string;
+  hemiGroundHex: string;
+  hemiIntensity: number;     // Kept low (0.28 - 0.42) so shadows between flowers stay rich
+  envIntensity: number;      // Kept low (0.25 - 0.38) so dark crevices don't wash out
+}
+
 export interface ColorPalette {
   id: string;
   name: string;
@@ -49,6 +67,7 @@ export interface ColorPalette {
   primaryHex: string;
   secondaryHex: string;
   narrative: string;
+  stageTheme: PaletteStageTheme;
 }
 
 export interface BespokeVessel {
@@ -369,6 +388,23 @@ export const BESPOKE_OPTIONS = {
       primaryHex: "#EFE9DD",
       secondaryHex: "#C6A972",
       narrative: "Luminous unbleached ivory blooms accented with brushed champagne gold fiber twists.",
+      stageTheme: {
+        atmosphereLabel: "WARM TRAVERTINE GALLERY",
+        bgCenterHex: "#22201D",
+        bgEdgeHex: "#0B0A09",
+        bgFloorHex: "#181715",
+        plinthHex: "#191816",
+        keyLightHex: "#FFF4E0",
+        keyIntensity: 3.2,
+        fillLightHex: "#9FA8B3",
+        fillIntensity: 0.42,
+        rimLightHex: "#E8C88B",
+        rimIntensity: 2.8,
+        hemiSkyHex: "#EBE2D3",
+        hemiGroundHex: "#181614",
+        hemiIntensity: 0.32,
+        envIntensity: 0.32,
+      },
     },
     {
       id: "obsidian-champagne",
@@ -377,6 +413,23 @@ export const BESPOKE_OPTIONS = {
       primaryHex: "#0A0A0B",
       secondaryHex: "#C6A972",
       narrative: "Deepest nocturnal graphite offset by hand-twisted champagne metallic accents.",
+      stageTheme: {
+        atmosphereLabel: "NOCTURNE OBSIDIAN VAULT",
+        bgCenterHex: "#181A22",
+        bgEdgeHex: "#07080A",
+        bgFloorHex: "#0F1014",
+        plinthHex: "#121317",
+        keyLightHex: "#F5EADB",
+        keyIntensity: 3.6,
+        fillLightHex: "#6F8099",
+        fillIntensity: 0.38,
+        rimLightHex: "#DFBA73",
+        rimIntensity: 3.2,
+        hemiSkyHex: "#D2D9E3",
+        hemiGroundHex: "#0E1014",
+        hemiIntensity: 0.3,
+        envIntensity: 0.28,
+      },
     },
     {
       id: "bordeaux-blush",
@@ -385,6 +438,23 @@ export const BESPOKE_OPTIONS = {
       primaryHex: "#5C1F2B",
       secondaryHex: "#D8B4A8",
       narrative: "Deep dramatic bordeaux petals paired with soft powdered blush rose undertones.",
+      stageTheme: {
+        atmosphereLabel: "DUSK VELVET ATELIER",
+        bgCenterHex: "#24171A",
+        bgEdgeHex: "#0A0607",
+        bgFloorHex: "#160E10",
+        plinthHex: "#181013",
+        keyLightHex: "#FFF0E6",
+        keyIntensity: 3.4,
+        fillLightHex: "#9B8289",
+        fillIntensity: 0.4,
+        rimLightHex: "#EBB6A8",
+        rimIntensity: 3.0,
+        hemiSkyHex: "#E8D1CB",
+        hemiGroundHex: "#170E11",
+        hemiIntensity: 0.32,
+        envIntensity: 0.3,
+      },
     },
     {
       id: "raw-ecru-alabaster",
@@ -393,6 +463,23 @@ export const BESPOKE_OPTIONS = {
       primaryHex: "#EAE5DC",
       secondaryHex: "#C8C0B2",
       narrative: "Unbleached natural field fibers preserving original organic flecks and tonal variations.",
+      stageTheme: {
+        atmosphereLabel: "ALABASTER SCULPTURE COURT",
+        bgCenterHex: "#22211E",
+        bgEdgeHex: "#0B0A09",
+        bgFloorHex: "#171614",
+        plinthHex: "#1A1916",
+        keyLightHex: "#FFF8EE",
+        keyIntensity: 3.0,
+        fillLightHex: "#8E959E",
+        fillIntensity: 0.44,
+        rimLightHex: "#D5C8B4",
+        rimIntensity: 2.6,
+        hemiSkyHex: "#EDE7DC",
+        hemiGroundHex: "#181715",
+        hemiIntensity: 0.34,
+        envIntensity: 0.34,
+      },
     },
     {
       id: "moonlit-sage-slate",
@@ -401,6 +488,23 @@ export const BESPOKE_OPTIONS = {
       primaryHex: "#2A332F",
       secondaryHex: "#7E8C85",
       narrative: "Muted dry sage greens paired with damp slate for a tranquil organic harmony.",
+      stageTheme: {
+        atmosphereLabel: "BOTANIC CONSERVATORY AT NIGHT",
+        bgCenterHex: "#17201D",
+        bgEdgeHex: "#060A08",
+        bgFloorHex: "#0E1412",
+        plinthHex: "#111815",
+        keyLightHex: "#EFF5F0",
+        keyIntensity: 3.2,
+        fillLightHex: "#6E847B",
+        fillIntensity: 0.38,
+        rimLightHex: "#9FBFB0",
+        rimIntensity: 2.8,
+        hemiSkyHex: "#C5D6CC",
+        hemiGroundHex: "#0C1310",
+        hemiIntensity: 0.3,
+        envIntensity: 0.28,
+      },
     },
     {
       id: "deep-espresso-sienna",
@@ -409,6 +513,23 @@ export const BESPOKE_OPTIONS = {
       primaryHex: "#221A18",
       secondaryHex: "#8A6250",
       narrative: "Earth pigments inspired by raw bark, roasted coffee bean, and terracotta pottery.",
+      stageTheme: {
+        atmosphereLabel: "TERRACOTTA & SMOKED CEDAR",
+        bgCenterHex: "#241A16",
+        bgEdgeHex: "#0A0706",
+        bgFloorHex: "#16100D",
+        plinthHex: "#18120F",
+        keyLightHex: "#FFF1E4",
+        keyIntensity: 3.5,
+        fillLightHex: "#997B70",
+        fillIntensity: 0.4,
+        rimLightHex: "#DCA078",
+        rimIntensity: 3.0,
+        hemiSkyHex: "#E8D5CA",
+        hemiGroundHex: "#17100D",
+        hemiIntensity: 0.32,
+        envIntensity: 0.3,
+      },
     },
   ] as ColorPalette[],
 
