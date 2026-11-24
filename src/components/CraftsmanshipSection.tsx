@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { CRAFTSMANSHIP_PILLARS } from "@/data/atelier";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
-import { LUXURY_EASE, MOTION_DURATIONS } from "@/lib/motion";
+import { LUXURY_EASE } from "@/lib/motion";
 
 export function CraftsmanshipSection() {
   const [activePillarId, setActivePillarId] = useState<string>(CRAFTSMANSHIP_PILLARS[0].id);
@@ -35,29 +35,28 @@ export function CraftsmanshipSection() {
   }, []);
 
   return (
-    <section id="craftsmanship" className="relative w-full bg-[#121214] py-28 sm:py-36 lg:py-44 border-t border-b border-white/10">
+    <section id="craftsmanship" className="relative w-full bg-[#000000] py-24 sm:py-36 border-t border-b border-white/15">
       <div className="max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           {/* Left Column: Sticky Editorial Context */}
           <div className="lg:col-span-5">
             <div className="lg:sticky lg:top-32 space-y-8">
               <div className="space-y-3">
-                <span className="font-sans text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-[#C6A972]">
-                  CHAPTER II — THE ATELIER PHILOSOPHY
+                <span className="font-sans text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-white/50 font-light">
+                  THE ATELIER PHILOSOPHY
                 </span>
-                <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-[#F4F1EA] font-light leading-tight">
-                  Discipline of the <br />
-                  <span className="italic">Single Stitch.</span>
+                <h2 className="font-sans text-3xl sm:text-5xl lg:text-6xl text-white font-light tracking-[0.16em] uppercase leading-tight">
+                  DISCIPLINE OF THE SINGLE STITCH
                 </h2>
               </div>
 
-              <p className="font-sans text-xs sm:text-sm text-[#9A968E] font-light leading-relaxed tracking-wide">
+              <p className="font-sans text-xs sm:text-sm text-white/60 font-light leading-relaxed tracking-wide">
                 At The Weave Studio, we reject the hurried momentum of contemporary fashion. Our practice is an architectural devotion to tensile equilibrium, structural restraint, and heirloom durability.
               </p>
 
               {/* Architectural Indicator Rules with Active Pillar Highlighting */}
-              <div className="pt-8 border-t border-white/10 space-y-4">
-                <span className="font-sans text-[10px] tracking-[0.25em] text-[#9A968E] uppercase block">
+              <div className="pt-8 border-t border-white/15 space-y-4">
+                <span className="font-sans text-[10px] tracking-[0.25em] text-white/40 uppercase block font-light">
                   CRAFT PILLARS
                 </span>
                 <div className="space-y-2">
@@ -68,18 +67,18 @@ export function CraftsmanshipSection() {
                       <button
                         key={p.number}
                         onClick={() => scrollTo(`#${p.id}`)}
-                        className={`group w-full flex items-center justify-between text-left py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
-                          isActive ? "text-[#C6A972]" : "text-[#9A968E] hover:text-[#F4F1EA]"
+                        className={`group w-full flex items-center justify-between text-left py-2 transition-colors focus-visible:outline-none ${
+                          isActive ? "text-white" : "text-white/40 hover:text-white"
                         }`}
                       >
-                        <div className="flex items-center gap-3 text-xs font-sans">
-                          <span className={`font-medium tracking-[0.2em] transition-colors ${
-                            isActive ? "text-[#C6A972]" : "text-[#9A968E]"
+                        <div className="flex items-center gap-4 text-xs font-sans">
+                          <span className={`tracking-[0.2em] font-light ${
+                            isActive ? "text-white font-normal" : "text-white/40"
                           }`}>
                             {p.number}
                           </span>
-                          <span className={`tracking-[0.15em] uppercase font-light transition-colors ${
-                            isActive ? "text-[#F4F1EA] font-normal" : "text-[#9A968E]"
+                          <span className={`tracking-[0.18em] uppercase font-light ${
+                            isActive ? "text-white font-normal" : "text-white/40"
                           }`}>
                             {p.title}
                           </span>
@@ -90,11 +89,11 @@ export function CraftsmanshipSection() {
                           {isActive ? (
                             <motion.span
                               layoutId="activePillarLine"
-                              className="w-8 h-[1px] bg-[#C6A972]"
+                              className="w-8 h-[1px] bg-white"
                               transition={{ duration: 0.5, ease: LUXURY_EASE }}
                             />
                           ) : (
-                            <span className="w-3 h-[1px] bg-white/10 group-hover:bg-white/30 transition-colors" />
+                            <span className="w-3 h-[1px] bg-white/15 group-hover:bg-white/40 transition-colors" />
                           )}
                         </div>
                       </button>
@@ -102,90 +101,69 @@ export function CraftsmanshipSection() {
                   })}
                 </div>
               </div>
-
-              <div className="pt-6">
-                <div className="p-5 border border-white/10 bg-[#0A0A0B]/60 backdrop-blur-sm">
-                  <span className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#C6A972] block mb-1">
-                    STUDIO PRINCIPLE
-                  </span>
-                  <p className="font-serif text-sm italic text-[#F4F1EA]/90 leading-relaxed">
-                    &ldquo;When every loop is pulled by hand, time ceases to be a cost and becomes the quietest ingredient of beauty.&rdquo;
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Right Column: 3 Tactile Pillars */}
-          <div className="lg:col-span-7 space-y-24 sm:space-y-32">
+          {/* Right Column: Scrolling Detailed Pillar Cards */}
+          <div className="lg:col-span-7 space-y-28 sm:space-y-36">
             {CRAFTSMANSHIP_PILLARS.map((pillar) => (
-              <motion.article
+              <article
                 key={pillar.id}
                 id={pillar.id}
-                initial={{ opacity: 0, y: 36 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: MOTION_DURATIONS.deliberate,
-                  ease: LUXURY_EASE,
-                }}
-                className="space-y-8 border-b border-white/10 pb-16 sm:pb-24 last:border-b-0 scroll-mt-32"
+                className="scroll-mt-32 space-y-8"
               >
-                {/* Pillar Image */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-[#0A0A0B] border border-white/10">
+                {/* Full-width Image for Pillar */}
+                <div className="relative aspect-[16/10] w-full bg-[#151515] overflow-hidden border border-white/15">
                   <Image
                     src={pillar.image}
                     alt={pillar.title}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover object-center filter brightness-[0.82] contrast-[1.08] hover:scale-105 transition-transform duration-1000 ease-out"
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    className="object-cover object-center filter brightness-[0.88] hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B]/70 via-transparent to-transparent pointer-events-none" />
-
-                  <div className="absolute top-4 left-4 bg-[#0A0A0B]/85 backdrop-blur-md px-3 py-1 border border-white/10">
-                    <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-[#C6A972]">
-                      {pillar.tag}
+                  <div className="absolute top-4 left-4 bg-black/85 px-3 py-1 border border-white/20">
+                    <span className="font-sans text-[9px] tracking-[0.25em] uppercase text-white/80 font-light">
+                      {pillar.number} / {pillar.tag}
                     </span>
                   </div>
                 </div>
 
-                {/* Pillar Header */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span className="font-sans text-xs tracking-[0.3em] text-[#C6A972] font-medium">
-                      PILLAR {pillar.number}
-                    </span>
-                    <span className="w-8 h-[1px] bg-white/10" />
-                  </div>
+                {/* Pillar Typography */}
+                <div className="space-y-4">
+                  <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-white/50 block font-light">
+                    PILLAR {pillar.number}
+                  </span>
 
-                  <h3 className="font-serif text-3xl sm:text-4xl text-[#F4F1EA] font-light">
+                  <h3 className="font-sans text-2xl sm:text-4xl text-white font-light tracking-[0.16em] uppercase">
                     {pillar.title}
                   </h3>
 
-                  <p className="font-serif text-base sm:text-lg text-[#C6A972] italic font-light">
+                  <p className="font-sans text-sm text-white/80 font-light italic leading-relaxed">
                     {pillar.subtitle}
+                  </p>
+
+                  <p className="font-sans text-xs sm:text-sm text-white/60 font-light leading-relaxed pt-2">
+                    {pillar.body}
                   </p>
                 </div>
 
-                {/* Pillar Narrative Body */}
-                <p className="font-sans text-xs sm:text-sm text-[#9A968E] font-light leading-relaxed tracking-wide">
-                  {pillar.body}
-                </p>
-
-                {/* Technical Specifications */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
+                {/* Metrics / Specifications Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/15">
                   {pillar.specs.map((spec) => (
-                    <div key={spec.label} className="space-y-1">
-                      <span className="font-sans text-[9px] tracking-[0.25em] text-[#9A968E] uppercase block">
+                    <div
+                      key={spec.label}
+                      className="p-4 bg-[#151515] border border-white/10 space-y-1"
+                    >
+                      <span className="block font-sans text-[8px] tracking-[0.25em] uppercase text-white/40 font-light">
                         {spec.label}
                       </span>
-                      <span className="font-sans text-xs text-[#F4F1EA] font-light block">
+                      <span className="block font-sans text-xs text-white font-light tracking-wide">
                         {spec.value}
                       </span>
                     </div>
                   ))}
                 </div>
-              </motion.article>
+              </article>
             ))}
           </div>
         </div>

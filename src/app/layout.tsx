@@ -1,28 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Montserrat } from "next/font/google";
+import { Jost } from "next/font/google";
 import "./globals.css";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { AtelierProvider } from "@/context/AtelierContext";
 
-const cormorant = Cormorant_Garamond({
+const jost = Jost({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
-  display: "swap",
-});
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-montserrat",
+  weight: ["200", "300", "400", "500"],
+  variable: "--font-jost",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://theweavestudio.vercel.app"),
   title: {
-    default: "The Weave Studio | Bespoke Handcrafted Atelier",
+    default: "The Weave Studio | Rolls-Royce of Handcrafted Crochet",
     template: "%s | The Weave Studio",
   },
   description:
@@ -35,6 +27,7 @@ export const metadata: Metadata = {
     "Hyderabad Luxury Atelier",
     "Handmade Heirloom Tapestry",
     "Bespoke Fiber Arts",
+    "Bespoke Bouquet Configurator",
   ],
   authors: [{ name: "The Weave Studio" }],
   creator: "The Weave Studio",
@@ -71,7 +64,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0B",
+  themeColor: "#000000",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -83,9 +76,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark bg-[#0A0A0B]">
+    <html lang="en" className="dark bg-[#000000]">
       <body
-        className={`${cormorant.variable} ${montserrat.variable} bg-[#0A0A0B] text-[#F4F1EA] font-sans antialiased selection:bg-[#C6A972] selection:text-[#0A0A0B] overflow-x-clip min-h-screen`}
+        className={`${jost.variable} bg-[#000000] text-[#FFFFFF] font-sans antialiased selection:bg-white selection:text-black overflow-x-clip min-h-screen`}
       >
         <SmoothScrollProvider>
           <AtelierProvider>

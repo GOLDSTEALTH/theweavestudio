@@ -1,21 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
-import { Check, Copy, MessageSquare } from "lucide-react";
-import { BESPOKE_OPTIONS, ATELIER_CONFIG, createWhatsAppCommissionLink } from "@/data/atelier";
+import { Check, Copy, MessageSquare, X, FileText } from "lucide-react";
+import {
+  BESPOKE_OPTIONS,
+  ATELIER_CONFIG,
+  createWhatsAppCommissionLink,
+} from "@/data/atelier";
 import { useAtelier } from "@/context/AtelierContext";
 
-// Dynamically load the 3D Stage on client-side only with Obsidian Gallery skeleton loader
+// Dynamically load the 3D Stage on client-side only with pure monochrome skeleton loader
 const BespokeBouquet3D = dynamic(
   () => import("@/components/BespokeBouquet3D"),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-[#0D0D0F] border border-white/10 space-y-4">
-        <div className="w-8 h-8 rounded-full border border-[#C6A972]/30 border-t-[#C6A972] animate-spin" />
-        <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#9A968E]">
+      <div className="w-full h-full flex flex-col items-center justify-center bg-[#000000] border border-white/10 space-y-4">
+        <div className="w-8 h-8 rounded-full border border-white/30 border-t-white animate-spin" />
+        <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-white/50 font-light">
           INITIALIZING 3D BESPOKE STAGE
         </span>
       </div>
@@ -23,9 +26,24 @@ const BespokeBouquet3D = dynamic(
   }
 );
 
-export function BespokeStudio() {
+type ConfigTab = "PALETTE" | "FIBER" | "VESSEL" | "ACCENTS" | "COMMISSION SUMMARY";
+
+interface BespokeStudioProps {
+  initialSilhouetteId?: string;
+  isFullScreenRoute?: boolean;
+}
+
+export function BespokeStudio({ initialSilhouetteId, isFullScreenRoute = false }: BespokeStudioProps) {
   const { selectedSilhouette, setSelectedSilhouette } = useAtelier();
 
+  // If initialSilhouetteId passed from route query, sync it
+  useEffect(() => {
+    if (initialSilhouetteId) {
+      setSelectedSilhouette(initialSilhouetteId);
+    }
+  }, [initialSilhouetteId, setSelectedSilhouette]);
+
+  const [activeTab, setActiveTab] = useState<ConfigTab>("PALETTE");
   const [activeFiberId, setActiveFiberId] = useState(BESPOKE_OPTIONS.fibers[0].id);
   const [activePaletteId, setActivePaletteId] = useState(BESPOKE_OPTIONS.palettes[0].id);
   const [activeVesselId, setActiveVesselId] = useState(BESPOKE_OPTIONS.vessels[0].id);
@@ -34,6 +52,7 @@ export function BespokeStudio() {
   const [clientName, setClientName] = useState("");
   const [customNotes, setCustomNotes] = useState("");
   const [isCopied, setIsCopied] = useState(false);
+  const [isDossierOpen, setIsDossierOpen] = useState(false);
 
   const isBotanical = selectedSilhouette === "botanical-study";
 
@@ -77,7 +96,8 @@ export function BespokeStudio() {
       `Selected Silhouette: ${currentSilhouette.name} (${currentSilhouette.subtitle})\n` +
       `Estimated Lead Time: ${currentSilhouette.leadTime}\n` +
       `Selected Fiber: ${currentFiber.name} [Origin: ${currentFiber.origin}]\n` +
-      `Curated Palette: ${currentPalette.name} (${currentPalette.editorialLabel})\n`;
+      `Curated Palette: ${currentPalette.name} (${currentPalette.editorialLabel})\n` +
+      `Stage Atmosphere: ${currentPalette.stageTheme.atmosphereLabel}\n`;
 
     if (isBotanical) {
       text +=
@@ -132,530 +152,345 @@ export function BespokeStudio() {
     }
   };
 
+  const handleTabClick = (tab: ConfigTab) => {
+    setActiveTab(tab);
+    if (tab === "COMMISSION SUMMARY") {
+      setIsDossierOpen(true);
+    }
+  };
+
   return (
-    <section id="bespoke" className="relative w-full bg-[#0A0A0B] py-28 sm:py-36 lg:py-44">
-      {/* Section Header */}
-      <div className="max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 mb-12 sm:mb-16">
-        <div className="border-b border-white/10 pb-10 space-y-3">
-          <span className="font-sans text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-[#C6A972]">
-            CHAPTER III — BESPOKE COMMISSIONING
-          </span>
-          <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-[#F4F1EA] font-light">
-            The Commission Studio
-          </h2>
-          <p className="font-sans text-xs text-[#9A968E] font-light max-w-2xl leading-relaxed tracking-wide pt-2">
-            Configure your bespoke commission in real time. Manipulate tactile fibers, curated dual-tone palettes, presentation vessels, and accents on the live interactive atelier stage.
-          </p>
-        </div>
+    <div
+      className={`relative w-full ${
+        isFullScreenRoute
+          ? "h-[calc(100svh-80px)] min-h-[640px] overflow-hidden"
+          : "min-h-[76vh] lg:h-[calc(100svh-80px)]"
+      } bg-[#000000] flex flex-col justify-between`}
+    >
+      {/* Main 3D Canvas Viewport */}
+      <div className="relative w-full flex-1 h-full overflow-hidden">
+        <BespokeBouquet3D
+          palette={currentPalette}
+          fiber={currentFiber}
+          vessel={currentVessel}
+          accent={currentAccent}
+          isBotanical={isBotanical}
+        />
       </div>
 
-      {/* Rolls-Royce Split-Screen Configurator */}
-      <div className="max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-          {/* Left Column (7 cols): Sticky 3D Bespoke Stage */}
-          <div className="lg:col-span-7 lg:sticky lg:top-28 z-10">
-            <div className="border border-white/10 bg-[#0D0D0F] shadow-[0_30px_80px_rgba(0,0,0,0.8)] overflow-hidden">
-              {/* Top Bar above 3D Canvas */}
-              <div className="px-5 py-3.5 border-b border-white/10 bg-[#0A0A0B]/95 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-[#C6A972] animate-pulse" />
-                  <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#F4F1EA] font-medium truncate">
-                    LIVE 3D BESPOKE STAGE &bull; BOTANICAL SCULPTURE
-                  </span>
-                </div>
-                <span className="font-sans text-[9px] tracking-[0.2em] uppercase text-[#9A968E] hidden sm:inline">
-                  DRAG TO ROTATE &bull; DEDICATED ZOOM
-                </span>
-              </div>
-
-              {/* 3D Viewport Frame */}
-              <div className="relative w-full h-[460px] sm:h-[560px] lg:h-[620px] xl:h-[680px]">
-                <BespokeBouquet3D
-                  palette={currentPalette}
-                  fiber={currentFiber}
-                  vessel={currentVessel}
-                  accent={currentAccent}
-                  isBotanical={isBotanical}
-                />
-              </div>
-
-              {/* Clean Minimal 1-Row Palette Dot Bar in Stage Footer */}
-              <div className="border-t border-white/10 bg-[#121214] px-4 py-3 sm:px-6 sm:py-3.5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-sans text-[9px] tracking-[0.25em] uppercase text-[#9A968E]">
-                      PALETTE:
-                    </span>
-                    <span className="font-sans text-[10px] tracking-wider uppercase text-[#C6A972] font-medium">
-                      {currentPalette.name}
-                    </span>
-                    <span className="font-sans text-[8px] tracking-[0.2em] uppercase text-[#9A968E]/70 hidden md:inline">
-                      &bull; {currentPalette.stageTheme.atmosphereLabel}
-                    </span>
-                  </div>
-
-                  {/* 1-Row Swatch Selector */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
-                    {BESPOKE_OPTIONS.palettes.map((p) => {
-                      const isSelected = p.id === activePaletteId;
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => setActivePaletteId(p.id)}
-                          className={`group relative flex items-center p-1 border transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
-                            isSelected
-                              ? "border-[#C6A972] bg-[#0A0A0B]"
-                              : "border-white/10 bg-[#0A0A0B]/60 hover:border-white/30"
-                          }`}
-                          title={p.name}
-                          aria-label={`Select ${p.name}`}
-                        >
-                          <div className="flex items-center overflow-hidden w-6 h-3.5 sm:w-7 sm:h-4">
-                            <span className="w-1/2 h-full" style={{ backgroundColor: p.primaryHex }} />
-                            <span className="w-1/2 h-full" style={{ backgroundColor: p.secondaryHex }} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Sleek Frosted-Glass Bottom Configurator Bar (5 clean tabs) */}
+      <div className="relative z-30 w-full bg-black/85 backdrop-blur-2xl border-t border-white/15">
+        {/* Tab Selection Row */}
+        <div className="max-w-[1720px] mx-auto px-4 sm:px-8 py-3 flex items-center justify-between gap-2 overflow-x-auto border-b border-white/10">
+          <div className="flex items-center gap-1 sm:gap-2">
+            {(["PALETTE", "FIBER", "VESSEL", "ACCENTS"] as ConfigTab[]).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => handleTabClick(tab)}
+                className={`px-3 sm:px-5 py-2 text-[10px] sm:text-[11px] font-light tracking-[0.22em] uppercase rounded-full transition-all duration-300 focus-visible:outline-none whitespace-nowrap ${
+                  activeTab === tab && !isDossierOpen
+                    ? "bg-white text-black font-normal"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
 
-          {/* Right Column (5 cols): Scrolling 6-Step Configurator & Dossier */}
-          <div className="lg:col-span-5 space-y-12 sm:space-y-16">
-            {/* Step 1: Silhouette */}
-            <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-sans text-xs tracking-[0.25em] text-[#C6A972]">STEP 01</span>
-                  <span className="font-serif text-xl sm:text-2xl text-[#F4F1EA]">Select Silhouette</span>
-                </div>
-                <span className="font-sans text-[10px] tracking-[0.2em] text-[#9A968E] uppercase hidden sm:inline">
-                  GEOMETRY
-                </span>
-              </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setActiveTab("COMMISSION SUMMARY");
+                setIsDossierOpen(true);
+              }}
+              className="rounded-full border border-white/60 bg-transparent px-4 sm:px-6 py-2 text-[10px] sm:text-[11px] font-light tracking-[0.22em] uppercase text-white transition-all hover:bg-white hover:text-black flex items-center gap-2 whitespace-nowrap"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>COMMISSION SUMMARY</span>
+            </button>
+          </div>
+        </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {BESPOKE_OPTIONS.silhouettes.map((sil) => {
-                  const isSelected = sil.id === selectedSilhouette;
+        {/* Dynamic Configurator Options Drawer (Updates live without scrolling away) */}
+        {!isDossierOpen && (
+          <div className="max-w-[1720px] mx-auto px-4 sm:px-8 py-4 sm:py-5 overflow-x-auto">
+            {/* 1. PALETTES TAB */}
+            {activeTab === "PALETTE" && (
+              <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto pb-1">
+                {BESPOKE_OPTIONS.palettes.map((pal) => {
+                  const isSelected = pal.id === activePaletteId;
                   return (
                     <button
-                      key={sil.id}
-                      onClick={() => setSelectedSilhouette(sil.id)}
-                      className={`group relative text-left p-3.5 sm:p-4 border transition-all duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+                      key={pal.id}
+                      onClick={() => setActivePaletteId(pal.id)}
+                      className={`flex-shrink-0 p-3 sm:p-4 rounded-lg border text-left transition-all duration-300 flex items-center gap-3.5 focus-visible:outline-none ${
                         isSelected
-                          ? "border-[#C6A972] bg-[#121214]"
-                          : "border-white/10 bg-[#0A0A0B] hover:border-white/20"
+                          ? "bg-white/10 border-white"
+                          : "bg-black/40 border-white/10 hover:border-white/40"
                       }`}
                     >
-                      <div className="relative aspect-[16/10] overflow-hidden mb-3 bg-[#18181B]">
-                        <Image
-                          src={sil.image}
-                          alt={sil.name}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 25vw"
-                          className="object-cover object-center filter brightness-[0.85] group-hover:scale-105 transition-transform duration-700"
+                      {/* Dual-Tone Swatch Rings */}
+                      <div className="flex -space-x-2">
+                        <span
+                          className="w-5 h-5 rounded-full border border-white/30"
+                          style={{ backgroundColor: pal.primaryHex }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B]/80 via-transparent to-transparent pointer-events-none" />
-                        <span className="absolute bottom-1.5 right-1.5 font-sans text-[8px] tracking-[0.2em] text-[#C6A972] bg-[#0A0A0B]/80 px-1.5 py-0.5">
-                          {sil.startingHours}
+                        <span
+                          className="w-5 h-5 rounded-full border border-white/30"
+                          style={{ backgroundColor: pal.secondaryHex }}
+                        />
+                      </div>
+                      <div>
+                        <span className="block font-sans text-xs tracking-wider text-white uppercase font-light">
+                          {pal.name}
+                        </span>
+                        <span className="block font-sans text-[9px] tracking-[0.2em] text-white/50 uppercase font-light">
+                          {pal.stageTheme.atmosphereLabel}
                         </span>
                       </div>
-
-                      <div className="flex items-start justify-between gap-1.5">
-                        <div>
-                          <h4 className="font-serif text-base text-[#F4F1EA] font-light">
-                            {sil.name}
-                          </h4>
-                          <span className="font-sans text-[9px] tracking-[0.2em] text-[#9A968E] uppercase block mt-0.5">
-                            {sil.subtitle}
-                          </span>
-                        </div>
-                        {isSelected && (
-                          <div className="w-4 h-4 border border-[#C6A972] flex items-center justify-center text-[#C6A972] shrink-0">
-                            <Check strokeWidth={1.5} className="w-2.5 h-2.5" />
-                          </div>
-                        )}
-                      </div>
                     </button>
                   );
                 })}
               </div>
-            </div>
+            )}
 
-            {/* Step 2: Tactile Fiber */}
-            <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-sans text-xs tracking-[0.25em] text-[#C6A972]">STEP 02</span>
-                  <span className="font-serif text-xl sm:text-2xl text-[#F4F1EA]">Choose Tactile Fiber</span>
-                </div>
-                <span className="font-sans text-[10px] tracking-[0.2em] text-[#9A968E] uppercase hidden sm:inline">
-                  PROVENANCE
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {BESPOKE_OPTIONS.fibers.map((f) => {
-                  const isSelected = f.id === activeFiberId;
+            {/* 2. FIBERS TAB */}
+            {activeTab === "FIBER" && (
+              <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto pb-1">
+                {BESPOKE_OPTIONS.fibers.map((fib) => {
+                  const isSelected = fib.id === activeFiberId;
                   return (
                     <button
-                      key={f.id}
-                      onClick={() => setActiveFiberId(f.id)}
-                      className={`w-full group text-left p-4 border transition-all duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+                      key={fib.id}
+                      onClick={() => setActiveFiberId(fib.id)}
+                      className={`flex-shrink-0 p-3 sm:p-4 rounded-lg border text-left transition-all duration-300 flex items-center gap-3.5 focus-visible:outline-none ${
                         isSelected
-                          ? "border-[#C6A972] bg-[#121214]"
-                          : "border-white/10 bg-[#0A0A0B] hover:border-white/20"
+                          ? "bg-white/10 border-white"
+                          : "bg-black/40 border-white/10 hover:border-white/40"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2.5">
-                          <span
-                            className="w-3.5 h-3.5 border border-white/20 inline-block"
-                            style={{ backgroundColor: f.swatchTone }}
-                          />
-                          <h4 className="font-serif text-base text-[#F4F1EA] font-light">
-                            {f.name}
-                          </h4>
-                        </div>
-                        {isSelected && (
-                          <div className="w-4 h-4 border border-[#C6A972] flex items-center justify-center text-[#C6A972]">
-                            <Check strokeWidth={1.5} className="w-2.5 h-2.5" />
-                          </div>
-                        )}
-                      </div>
-
-                      <span className="font-sans text-[9px] tracking-[0.2em] text-[#C6A972] uppercase block mb-1">
-                        ORIGIN: {f.origin}
-                      </span>
-                      <p className="font-sans text-xs text-[#9A968E] font-light leading-relaxed">
-                        {f.description}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Step 3: Curate Palette */}
-            <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-sans text-xs tracking-[0.25em] text-[#C6A972]">STEP 03</span>
-                  <span className="font-serif text-xl sm:text-2xl text-[#F4F1EA]">Curate Designer Palette</span>
-                </div>
-                <span className="font-sans text-[10px] tracking-[0.2em] text-[#9A968E] uppercase hidden sm:inline">
-                  6 DUAL TONES
-                </span>
-              </div>
-
-              <div className="space-y-2.5">
-                {BESPOKE_OPTIONS.palettes.map((palette) => {
-                  const isSelected = palette.id === activePaletteId;
-                  return (
-                    <button
-                      key={palette.id}
-                      onClick={() => setActivePaletteId(palette.id)}
-                      className={`w-full group text-left p-3.5 border transition-all duration-500 flex items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
-                        isSelected
-                          ? "border-[#C6A972] bg-[#121214]"
-                          : "border-white/10 bg-[#0A0A0B] hover:border-white/20"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="flex items-center overflow-hidden border border-white/20 w-11 h-6 shrink-0">
-                          <span
-                            className="w-1/2 h-full inline-block"
-                            style={{ backgroundColor: palette.primaryHex }}
-                          />
-                          <span
-                            className="w-1/2 h-full inline-block"
-                            style={{ backgroundColor: palette.secondaryHex }}
-                          />
-                        </div>
-
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-serif text-base text-[#F4F1EA] font-light truncate">
-                              {palette.name}
-                            </h4>
-                            <span className="font-sans text-[8px] tracking-[0.2em] text-[#C6A972] uppercase border border-[#C6A972]/30 px-1 py-0.2 shrink-0">
-                              {palette.editorialLabel}
-                            </span>
-                          </div>
-                          <p className="font-sans text-[11px] text-[#9A968E] font-light truncate mt-0.5">
-                            {palette.narrative}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="shrink-0">
-                        {isSelected ? (
-                          <div className="w-4 h-4 border border-[#C6A972] flex items-center justify-center text-[#C6A972]">
-                            <Check strokeWidth={1.5} className="w-2.5 h-2.5" />
-                          </div>
-                        ) : (
-                          <span className="font-sans text-[9px] tracking-[0.2em] text-[#9A968E]/60 uppercase group-hover:text-[#F4F1EA] transition-colors">
-                            SELECT
-                          </span>
-                        )}
+                      <span
+                        className="w-5 h-5 rounded-full border border-white/30 flex-shrink-0"
+                        style={{ backgroundColor: fib.swatchTone }}
+                      />
+                      <div>
+                        <span className="block font-sans text-xs tracking-wider text-white uppercase font-light">
+                          {fib.name}
+                        </span>
+                        <span className="block font-sans text-[9px] tracking-[0.2em] text-white/50 uppercase font-light">
+                          {fib.origin}
+                        </span>
                       </div>
                     </button>
                   );
                 })}
               </div>
-            </div>
+            )}
 
-            {/* Step 4: Presentation Vessel */}
-            <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-sans text-xs tracking-[0.25em] text-[#C6A972]">STEP 04</span>
-                  <span className="font-serif text-xl sm:text-2xl text-[#F4F1EA]">Presentation Vessel</span>
-                </div>
-                <span className="font-sans text-[9px] tracking-[0.2em] text-[#C6A972] uppercase">
-                  {isBotanical ? "BOTANICAL STAGE" : "OPTIONAL \u2022 BOTANICAL"}
-                </span>
-              </div>
-
-              <div className="space-y-2.5">
+            {/* 3. VESSELS TAB */}
+            {activeTab === "VESSEL" && (
+              <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto pb-1">
                 {BESPOKE_OPTIONS.vessels.map((v) => {
                   const isSelected = v.id === activeVesselId;
                   return (
                     <button
                       key={v.id}
                       onClick={() => setActiveVesselId(v.id)}
-                      className={`w-full text-left p-3.5 border transition-all duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+                      className={`flex-shrink-0 p-3 sm:p-4 rounded-lg border text-left transition-all duration-300 focus-visible:outline-none ${
                         isSelected
-                          ? "border-[#C6A972] bg-[#121214]"
-                          : "border-white/10 bg-[#0A0A0B] hover:border-white/20"
+                          ? "bg-white/10 border-white"
+                          : "bg-black/40 border-white/10 hover:border-white/40"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-sans text-[8px] tracking-[0.25em] text-[#C6A972] uppercase">
-                          {v.subtitle}
-                        </span>
-                        {isSelected && (
-                          <div className="w-4 h-4 border border-[#C6A972] flex items-center justify-center text-[#C6A972]">
-                            <Check strokeWidth={1.5} className="w-2.5 h-2.5" />
-                          </div>
-                        )}
-                      </div>
-                      <h4 className="font-serif text-base text-[#F4F1EA] font-light mb-1">
+                      <span className="block font-sans text-xs tracking-wider text-white uppercase font-light">
                         {v.name}
-                      </h4>
-                      <p className="font-sans text-xs text-[#9A968E] font-light leading-relaxed">
-                        {v.description}
-                      </p>
+                      </span>
+                      <span className="block font-sans text-[9px] tracking-[0.2em] text-white/50 uppercase font-light mt-0.5">
+                        {v.subtitle}
+                      </span>
                     </button>
                   );
                 })}
               </div>
-            </div>
+            )}
 
-            {/* Step 5: Botanical Accents */}
-            <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-sans text-xs tracking-[0.25em] text-[#C6A972]">STEP 05</span>
-                  <span className="font-serif text-xl sm:text-2xl text-[#F4F1EA]">Botanical Accents</span>
-                </div>
-                <span className="font-sans text-[9px] tracking-[0.2em] text-[#C6A972] uppercase">
-                  {isBotanical ? "BOTANICAL STAGE" : "OPTIONAL \u2022 BOTANICAL"}
-                </span>
-              </div>
-
-              <div className="space-y-2.5">
-                {BESPOKE_OPTIONS.accents.map((a) => {
-                  const isSelected = a.id === activeAccentId;
+            {/* 4. ACCENTS TAB */}
+            {activeTab === "ACCENTS" && (
+              <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto pb-1">
+                {BESPOKE_OPTIONS.accents.map((acc) => {
+                  const isSelected = acc.id === activeAccentId;
                   return (
                     <button
-                      key={a.id}
-                      onClick={() => setActiveAccentId(a.id)}
-                      className={`w-full text-left p-3.5 border transition-all duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+                      key={acc.id}
+                      onClick={() => setActiveAccentId(acc.id)}
+                      className={`flex-shrink-0 p-3 sm:p-4 rounded-lg border text-left transition-all duration-300 focus-visible:outline-none ${
                         isSelected
-                          ? "border-[#C6A972] bg-[#121214]"
-                          : "border-white/10 bg-[#0A0A0B] hover:border-white/20"
+                          ? "bg-white/10 border-white"
+                          : "bg-black/40 border-white/10 hover:border-white/40"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-sans text-[8px] tracking-[0.25em] text-[#C6A972] uppercase">
-                          {a.subtitle}
-                        </span>
-                        {isSelected && (
-                          <div className="w-4 h-4 border border-[#C6A972] flex items-center justify-center text-[#C6A972]">
-                            <Check strokeWidth={1.5} className="w-2.5 h-2.5" />
-                          </div>
-                        )}
-                      </div>
-                      <h4 className="font-serif text-base text-[#F4F1EA] font-light mb-1">
-                        {a.name}
-                      </h4>
-                      <p className="font-sans text-xs text-[#9A968E] font-light leading-relaxed">
-                        {a.description}
-                      </p>
+                      <span className="block font-sans text-xs tracking-wider text-white uppercase font-light">
+                        {acc.name}
+                      </span>
+                      <span className="block font-sans text-[9px] tracking-[0.2em] text-white/50 uppercase font-light mt-0.5">
+                        {acc.subtitle}
+                      </span>
                     </button>
                   );
                 })}
               </div>
-            </div>
+            )}
+          </div>
+        )}
+      </div>
 
-            {/* Step 6: Inscription & Sizing Notes */}
-            <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-sans text-xs tracking-[0.25em] text-[#C6A972]">STEP 06</span>
-                  <span className="font-serif text-xl sm:text-2xl text-[#F4F1EA]">Patron Inscription</span>
+      {/* Right-Side Monochrome Dossier Drawer */}
+      {isDossierOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div
+            onClick={() => setIsDossierOpen(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+          />
+
+          <div className="absolute inset-y-0 right-0 w-full max-w-xl bg-[#000000] border-l border-white/15 p-6 sm:p-10 flex flex-col justify-between overflow-y-auto">
+            <div>
+              {/* Drawer Top Header */}
+              <div className="flex items-center justify-between border-b border-white/15 pb-6">
+                <div>
+                  <span className="text-[10px] tracking-[0.28em] uppercase text-white/40 font-light block">
+                    THE WEAVE STUDIO
+                  </span>
+                  <h3 className="font-sans text-2xl text-white font-light tracking-[0.16em] uppercase">
+                    COMMISSION DOSSIER
+                  </h3>
                 </div>
-                <span className="font-sans text-[10px] tracking-[0.2em] text-[#9A968E] uppercase hidden sm:inline">
-                  PROVENANCE
-                </span>
+
+                <button
+                  onClick={() => setIsDossierOpen(false)}
+                  className="p-2 text-white/60 hover:text-white"
+                  aria-label="Close Dossier Drawer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="patron-name" className="block font-sans text-[9px] tracking-[0.25em] uppercase text-[#9A968E] mb-1.5 cursor-pointer">
-                    PATRON NAME / MONOGRAM DEDICATION
+              {/* Silhouette Switcher */}
+              <div className="py-6 border-b border-white/10 space-y-3">
+                <label className="block text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+                  BASE SILHOUETTE
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {BESPOKE_OPTIONS.silhouettes.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setSelectedSilhouette(s.id)}
+                      className={`p-3 text-left border rounded transition-all text-xs font-light tracking-wide uppercase ${
+                        selectedSilhouette === s.id
+                          ? "bg-white text-black border-white font-normal"
+                          : "bg-[#151515] text-white/70 border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      <span className="block truncate">{s.name}</span>
+                      <span className="block text-[8px] text-white/40 tracking-wider">
+                        {s.startingHours}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Curated Specifications Breakdown */}
+              <div className="py-6 border-b border-white/10 space-y-3 text-xs font-sans">
+                <label className="block text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+                  COMMISSION SPECIFICATIONS
+                </label>
+                <div className="p-4 bg-[#151515] border border-white/10 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-white/40 uppercase tracking-wider text-[9px] font-light">TACTILE FIBER</span>
+                    <span className="text-white font-light">{currentFiber.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/40 uppercase tracking-wider text-[9px] font-light">CURATED PALETTE</span>
+                    <span className="text-white font-light">{currentPalette.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/40 uppercase tracking-wider text-[9px] font-light">ATMOSPHERE</span>
+                    <span className="text-white font-light">{currentPalette.stageTheme.atmosphereLabel}</span>
+                  </div>
+                  {isBotanical && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-white/40 uppercase tracking-wider text-[9px] font-light">VESSEL</span>
+                        <span className="text-white font-light">{currentVessel.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/40 uppercase tracking-wider text-[9px] font-light">ACCENTS</span>
+                        <span className="text-white font-light">{currentAccent.name}</span>
+                      </div>
+                    </>
+                  )}
+                  <div className="flex justify-between pt-2 border-t border-white/10">
+                    <span className="text-white/40 uppercase tracking-wider text-[9px] font-light">LEAD TIME</span>
+                    <span className="text-white font-light">{currentSilhouette.leadTime}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Optional Patron Name & Notes Inputs */}
+              <div className="py-6 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+                    PATRON NAME (OPTIONAL)
                   </label>
                   <input
-                    id="patron-name"
                     type="text"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    placeholder="e.g. Lady Catherine S. / Initials 'CS'"
-                    className="w-full bg-[#121214] border border-white/15 px-3.5 py-3 text-sm text-[#F4F1EA] placeholder-[#9A968E]/50 font-sans focus:outline-none focus:border-[#C6A972] focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 transition-colors"
+                    placeholder="e.g. Sir Alistair Vance"
+                    className="w-full bg-[#151515] border border-white/15 px-4 py-3 text-xs text-white placeholder-white/30 focus-visible:outline-none focus-visible:border-white font-light"
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="custom-notes" className="block font-sans text-[9px] tracking-[0.25em] uppercase text-[#9A968E] mb-1.5 cursor-pointer">
-                    CUSTOM SIZING &amp; ARCHITECTURAL NOTES
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+                    CUSTOM MEASUREMENTS / INSCRIPTIONS
                   </label>
                   <textarea
-                    id="custom-notes"
                     rows={3}
                     value={customNotes}
                     onChange={(e) => setCustomNotes(e.target.value)}
-                    placeholder="Provide specific dimensions, handle drop preference, wall space requirements, or event deadline."
-                    className="w-full bg-[#121214] border border-white/15 px-3.5 py-3 text-sm text-[#F4F1EA] placeholder-[#9A968E]/50 font-sans focus:outline-none focus:border-[#C6A972] focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 transition-colors resize-none"
+                    placeholder="Enter custom dimensions, monogram initials, or spatial placement notes..."
+                    className="w-full bg-[#151515] border border-white/15 p-4 text-xs text-white placeholder-white/30 focus-visible:outline-none focus-visible:border-white font-light resize-none"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Live Commission Dossier Summary Card */}
-            <div className="bg-[#121214] border border-white/10 p-6 sm:p-7 space-y-6 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
-              {/* Dossier Header */}
-              <div className="border-b border-white/10 pb-4 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-[#C6A972]">
-                    COMMISSION DOSSIER
-                  </span>
-                  <span className="font-sans text-[8px] tracking-[0.25em] uppercase text-[#9A968E]">
-                    {ATELIER_CONFIG.founded} / {ATELIER_CONFIG.monogram}
-                  </span>
-                </div>
-                <h3 className="font-serif text-2xl text-[#F4F1EA] font-light">
-                  {currentSilhouette.name}
-                </h3>
-                <p className="font-sans text-[10px] tracking-[0.2em] text-[#9A968E] uppercase">
-                  {currentSilhouette.subtitle}
-                </p>
-              </div>
+            {/* Bottom Actions */}
+            <div className="pt-6 border-t border-white/15 space-y-3">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-3 rounded-full bg-white text-black hover:bg-white/85 py-4 text-[11px] font-light tracking-[0.22em] uppercase transition-all"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>REQUEST PRIVATE CONSULTATION (WHATSAPP)</span>
+              </a>
 
-              {/* Real-time Dossier Specs Table */}
-              <div className="space-y-3 font-sans text-xs">
-                <div className="flex justify-between items-baseline border-b border-white/10 pb-2">
-                  <span className="text-[#9A968E] uppercase text-[9px] tracking-[0.2em]">PATRON</span>
-                  <span className="text-[#F4F1EA] font-light">
-                    {clientName.trim() || "Anonymous Patron"}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-baseline border-b border-white/10 pb-2">
-                  <span className="text-[#9A968E] uppercase text-[9px] tracking-[0.2em]">MATERIAL FIBER</span>
-                  <span className="text-[#F4F1EA] font-light text-right">
-                    {currentFiber.name}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-baseline border-b border-white/10 pb-2">
-                  <span className="text-[#9A968E] uppercase text-[9px] tracking-[0.2em]">PALETTE</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-3 border border-white/20 flex overflow-hidden">
-                      <span className="w-1/2 h-full" style={{ backgroundColor: currentPalette.primaryHex }} />
-                      <span className="w-1/2 h-full" style={{ backgroundColor: currentPalette.secondaryHex }} />
-                    </div>
-                    <span className="text-[#F4F1EA] font-light">{currentPalette.name}</span>
-                  </div>
-                </div>
-
-                {isBotanical && (
-                  <>
-                    <div className="flex justify-between items-baseline border-b border-white/10 pb-2">
-                      <span className="text-[#9A968E] uppercase text-[9px] tracking-[0.2em]">VESSEL / WRAP</span>
-                      <span className="text-[#F4F1EA] font-light text-right">
-                        {currentVessel.name}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between items-baseline border-b border-white/10 pb-2">
-                      <span className="text-[#9A968E] uppercase text-[9px] tracking-[0.2em]">BOTANICAL ACCENT</span>
-                      <span className="text-[#F4F1EA] font-light text-right">
-                        {currentAccent.name}
-                      </span>
-                    </div>
-                  </>
-                )}
-
-                <div className="flex justify-between items-baseline border-b border-white/10 pb-2">
-                  <span className="text-[#9A968E] uppercase text-[9px] tracking-[0.2em]">ESTIMATED CRAFT</span>
-                  <span className="text-[#C6A972] font-medium tracking-wider">
-                    {currentSilhouette.startingHours}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-baseline border-b border-white/10 pb-2">
-                  <span className="text-[#9A968E] uppercase text-[9px] tracking-[0.2em]">LEAD TIME</span>
-                  <span className="text-[#F4F1EA] font-light">{currentSilhouette.leadTime} Handcraft</span>
-                </div>
-              </div>
-
-              {/* Actions & WhatsApp Handshake */}
-              <div className="space-y-2.5 pt-2">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-3 py-3.5 px-6 bg-[#C6A972] hover:bg-[#DFCA9B] text-[#0A0A0B] font-sans text-[10px] tracking-[0.28em] uppercase font-medium transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-                >
-                  <MessageSquare strokeWidth={1.5} className="w-4 h-4" />
-                  <span>REQUEST PRIVATE CONSULTATION</span>
-                </a>
-
-                <button
-                  onClick={handleCopyBrief}
-                  className="w-full flex items-center justify-center gap-2.5 py-3 px-6 border border-white/20 bg-transparent hover:border-[#C6A972] hover:text-[#C6A972] text-[#F4F1EA] font-sans text-[10px] tracking-[0.25em] uppercase font-light transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-                >
-                  {isCopied ? (
-                    <>
-                      <Check strokeWidth={1.5} className="w-3.5 h-3.5 text-[#C6A972]" />
-                      <span className="text-[#C6A972]">BRIEF COPIED TO CLIPBOARD</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy strokeWidth={1.25} className="w-3.5 h-3.5 text-[#9A968E]" />
-                      <span>COPY COMMISSION BRIEF</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleCopyBrief}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-white/60 bg-transparent py-3 text-[11px] font-light tracking-[0.22em] uppercase text-white hover:bg-white hover:text-black transition-all"
+              >
+                {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{isCopied ? "COPIED COMMISSION DOSSIER" : "COPY COMMISSION BRIEF"}</span>
+              </button>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }

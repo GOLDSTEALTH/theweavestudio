@@ -2,44 +2,51 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Lock, Menu, X } from "lucide-react";
-import { ATELIER_CONFIG, VAULT_PIECES } from "@/data/atelier";
+import { ChevronRight, ArrowLeft } from "lucide-react";
+import { VAULT_PIECES } from "@/data/atelier";
 import { useAtelier } from "@/context/AtelierContext";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
-import { LUXURY_EASE } from "@/lib/motion";
+
+type SubMenuType = "collections" | "bespoke" | null;
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSubMenu, setActiveSubMenu] = useState<SubMenuType>(null);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
   const { openVault } = useAtelier();
-  const { scrollTo, lockScroll, unlockScroll } = useSmoothScroll();
+  const { lockScroll, unlockScroll } = useSmoothScroll();
   const pathname = usePathname();
-  const router = useRouter();
-  const isHome = pathname === "/";
 
   const vaultCountFormatted = String(VAULT_PIECES.length).padStart(2, "0");
 
+  // Track scroll position for top bar frosted styling
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+      setIsScrolled(window.scrollY > 30);
     };
-
-    // Call immediately on mount so refreshing mid-page sets state accurately
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock scroll via lock-counter in SmoothScrollProvider
+  // Lock body scroll when curtain menu is open
   useEffect(() => {
     if (!isMenuOpen) return;
     lockScroll();
     return () => unlockScroll();
   }, [isMenuOpen, lockScroll, unlockScroll]);
 
-  // Handle Escape key to dismiss overlay
+  // Auto-close menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setActiveSubMenu(null);
+  }, [pathname]);
+
+  // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isMenuOpen) {
@@ -50,223 +57,325 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isMenuOpen]);
 
-  const handleNavClick = (targetId: string) => {
-    setIsMenuOpen(false);
-    if (isHome) {
-      scrollTo(targetId);
-    } else {
-      router.push(`/${targetId}`);
-    }
-  };
+  const collectionsSubLinks = [
+    { label: "VIEW ALL", href: "/collections" },
+    { label: "THE AURELIA TOTE", href: "/collection/aurelia-evening-tote" },
+    { label: "THE SOLSTICE CARDIGAN", href: "/collection/solstice-resort-cardigan" },
+    { label: "THE NOCTURNE TAPESTRY", href: "/collection/nocturne-heirloom-tapestry" },
+    { label: "THE VÉRIDIQUE FLORA", href: "/collection/veridique-botanical-sculpture" },
+    { label: "CONFIGURE 3D", href: "/bespoke/configure" },
+  ];
 
-  const navMenuItems = [
-    { label: "SIGNATURE EDITIONS", href: "#collections", id: "#collections", num: "01" },
-    { label: "THE CRAFTSMANSHIP", href: "#craftsmanship", id: "#craftsmanship", num: "02" },
-    { label: "BESPOKE STUDIO", href: "#bespoke", id: "#bespoke", num: "03" },
-    { label: "HYDERABAD PROVENANCE", href: "#provenance", id: "#provenance", num: "04" },
+  const bespokeSubLinks = [
+    { label: "DISCOVER BESPOKE", href: "/bespoke" },
+    { label: "3D CONFIGURATOR", href: "/bespoke/configure" },
+    { label: "BESPOKE CRAFT", href: "/bespoke/craft" },
+    { label: "PRIVATE COMMISSIONS", href: "/bespoke#private-office" },
   ];
 
   return (
     <>
+      {/* 1. Minimal Fixed Top Bar (h-20 / 80px) */}
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-colors duration-700 ease-out ${
-          isScrolled
-            ? "bg-[#0A0A0B]/85 backdrop-blur-md border-b border-[#F4F1EA]/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+        className={`fixed top-0 left-0 right-0 z-40 h-20 transition-all duration-500 ease-out ${
+          isScrolled || isMenuOpen
+            ? "bg-black/85 backdrop-blur-2xl border-b border-white/15"
             : "bg-transparent border-b border-transparent"
         }`}
       >
-        <div className="max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 h-20 sm:h-24 flex items-center justify-between">
-          {/* Left: Minimal Menu Trigger */}
-          <div className="flex items-center gap-6">
+        <div className="max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 h-full flex items-center justify-between">
+          {/* Left: MENU trigger (2 thin lines + MENU or X CLOSE) */}
+          <div className="flex items-center">
             <button
-              onClick={() => setIsMenuOpen(true)}
-              className="group flex items-center gap-2.5 text-[#F4F1EA] hover:text-[#C6A972] transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-              aria-label="Open Navigation Menu"
+              onClick={() => {
+                setIsMenuOpen((prev) => !prev);
+                if (isMenuOpen) setActiveSubMenu(null);
+              }}
+              className="group flex items-center gap-3 text-white transition-opacity hover:opacity-75 py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              aria-label={isMenuOpen ? "Close Menu" : "Open Navigation Menu"}
             >
-              <Menu strokeWidth={1.25} className="w-4 h-4 transition-transform group-hover:scale-105" />
-              <span className="hidden sm:inline font-sans text-[11px] tracking-[0.28em] uppercase font-light">
-                MENU
-              </span>
+              {isMenuOpen ? (
+                <span className="font-sans text-[11px] tracking-[0.25em] uppercase font-light text-white">
+                  X CLOSE
+                </span>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-1 w-4.5">
+                    <span className="w-4.5 h-[1px] bg-white transition-all duration-300" />
+                    <span className="w-3 h-[1px] bg-white transition-all duration-300" />
+                  </div>
+                  <span className="font-sans text-[11px] tracking-[0.28em] uppercase font-light text-white">
+                    MENU
+                  </span>
+                </>
+              )}
             </button>
           </div>
 
-          {/* Center: Wide-tracked Wordmark */}
-          <div className="absolute left-1/2 -translate-x-1/2 text-center">
+          {/* Center: Minimal pure-white geometric TWS Monogram Emblem (28px high, links to /, no subtitle text) */}
+          <div className="absolute left-1/2 -translate-x-1/2">
             <Link
               href="/"
-              className="inline-block group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
+              className="inline-block group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              aria-label="The Weave Studio Homepage"
             >
-              <span className="font-sans text-[11px] sm:text-xs tracking-[0.2em] sm:tracking-[0.35em] uppercase font-medium text-[#F4F1EA] transition-colors group-hover:text-[#C6A972]">
-                {ATELIER_CONFIG.studioName}
-              </span>
-              <span className="block text-[8px] tracking-[0.25em] sm:tracking-[0.45em] text-[#9A968E] uppercase -mt-0.5">
-                {ATELIER_CONFIG.location.toUpperCase()}
-              </span>
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 36 36"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-7 h-7 text-white transition-transform duration-500 group-hover:scale-105"
+              >
+                <rect x="17.4" y="4" width="1.2" height="28" fill="currentColor" />
+                <path
+                  d="M8 12C8 7.58172 11.5817 4 16 4C20.4183 4 24 7.58172 24 12C24 16.4183 20.4183 20 16 20"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                />
+                <path
+                  d="M28 24C28 28.4183 24.4183 32 20 32C15.5817 32 12 28.4183 12 24C12 19.5817 15.5817 16 20 16"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                />
+              </svg>
             </Link>
           </div>
 
-          {/* Right: Private Vault & Commission Anchor */}
-          <div className="flex items-center gap-4 sm:gap-8">
-            <button
-              onClick={openVault}
-              className="group flex items-center gap-2 text-[#C6A972] hover:text-[#DFCA9B] transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-              aria-label="Open Private Vault"
+          {/* Right: Subtle CONCIERGE link & VAULT trigger with dynamic 03 count */}
+          <div className="flex items-center gap-6 sm:gap-8">
+            <Link
+              href="/patronage#concierge"
+              className="hidden md:inline-block font-sans text-[11px] tracking-[0.25em] uppercase font-light text-white/80 hover:text-white transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
             >
-              <Lock strokeWidth={1.25} className="w-3.5 h-3.5 text-[#C6A972]" />
-              <span className="font-sans text-[11px] tracking-[0.25em] uppercase font-light hidden sm:inline">
-                PRIVATE VAULT
-              </span>
-              <span className="font-sans text-[10px] tracking-[0.2em] text-[#9A968E] group-hover:text-[#C6A972] transition-colors border border-[#C6A972]/30 px-1.5 py-0.5">
-                {vaultCountFormatted}
-              </span>
-            </button>
+              CONCIERGE
+            </Link>
 
             <button
-              onClick={() => handleNavClick("#bespoke")}
-              className="hidden md:inline-flex items-center font-sans text-[11px] tracking-[0.25em] uppercase text-[#F4F1EA] hover:text-[#C6A972] transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
+              onClick={openVault}
+              className="group flex items-center gap-2.5 text-white/90 hover:text-white transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+              aria-label="Open Private Vault Drawer"
             >
-              COMMISSION
+              <span className="font-sans text-[11px] tracking-[0.25em] uppercase font-light hidden sm:inline">
+                VAULT
+              </span>
+              <span className="font-sans text-[10px] tracking-[0.2em] font-light text-white/70 border border-white/30 px-1.5 py-0.5 group-hover:border-white transition-colors">
+                {vaultCountFormatted}
+              </span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Full-Screen Editorial Navigation Overlay */}
+      {/* 2. Two-Column Frosted-Glass Curtain Navigation Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div
+          <div
             data-lenis-prevent
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: LUXURY_EASE }}
-            className="fixed inset-0 z-50 bg-[#0A0A0B]/95 flex flex-col justify-between p-6 sm:p-12 lg:p-20 overflow-y-auto"
+            className="fixed inset-0 z-30 pt-20 flex overflow-hidden"
           >
-            {/* Top Bar inside Overlay */}
-            <div className="flex items-center justify-between w-full max-w-[1720px] mx-auto border-b border-white/10 pb-8">
-              <span className="font-sans text-[11px] tracking-[0.3em] uppercase text-[#9A968E]">
-                ATELIER DIRECTORY
-              </span>
+            {/* Dimmed backdrop on right so underlying live page remains subtly visible */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              onClick={() => setIsMenuOpen(false)}
+              className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+            />
 
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="group flex items-center gap-2 text-[#F4F1EA] hover:text-[#C6A972] transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-                aria-label="Close Menu"
-              >
-                <span className="font-sans text-[11px] tracking-[0.25em] uppercase font-light">
-                  CLOSE
-                </span>
-                <X strokeWidth={1.25} className="w-4 h-4 transition-transform group-hover:rotate-90 duration-500" />
-              </button>
-            </div>
-
-            {/* Menu Links with Staggered Clip-Path Reveals */}
-            <div className="w-full max-w-[1720px] mx-auto py-12 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-8 space-y-4 sm:space-y-6">
-                {navMenuItems.map((item, idx) => (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: 0.08 * idx,
-                      ease: LUXURY_EASE,
-                    }}
-                    className="overflow-hidden group"
-                  >
-                    <button
-                      onClick={() => handleNavClick(item.id)}
-                      className="text-left w-full flex items-baseline gap-4 sm:gap-8 group py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-                    >
-                      <span className="font-sans text-xs tracking-[0.3em] text-[#C6A972]/60 group-hover:text-[#C6A972] transition-colors">
-                        {item.num}
-                      </span>
-                      <span className="font-serif text-3xl sm:text-5xl lg:text-6xl text-[#F4F1EA] group-hover:text-[#C6A972] transition-colors italic tracking-wide group-hover:translate-x-3 duration-500 inline-block">
-                        {item.label}
-                      </span>
-                    </button>
-                  </motion.div>
-                ))}
-
-                {/* Private Vault Menu Link */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: 0.36,
-                    ease: LUXURY_EASE,
-                  }}
-                  className="overflow-hidden group pt-4"
-                >
-                  <button
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      openVault();
-                    }}
-                    className="text-left w-full flex items-baseline gap-4 sm:gap-8 group py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-                  >
-                    <span className="font-sans text-xs tracking-[0.3em] text-[#C6A972]">
-                      05
-                    </span>
-                    <span className="font-serif text-3xl sm:text-5xl lg:text-6xl text-[#C6A972] group-hover:text-[#DFCA9B] transition-colors italic tracking-wide group-hover:translate-x-3 duration-500 inline-flex items-center gap-4">
-                      PRIVATE VAULT ({vaultCountFormatted})
-                      <ArrowUpRight strokeWidth={1.25} className="w-8 h-8 opacity-75 inline" />
-                    </span>
-                  </button>
-                </motion.div>
-              </div>
-
-              {/* Right Side Editorial Column */}
+            {/* Curtain Columns Container */}
+            <div className="relative z-10 flex h-full max-h-[calc(100svh-80px)] w-full">
+              {/* Primary Left Frosted Panel */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 0.4, ease: LUXURY_EASE }}
-                className="lg:col-span-4 border-l border-white/10 lg:pl-12 space-y-8"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full sm:w-[40vw] max-w-[460px] h-full bg-black/75 backdrop-blur-3xl border-r border-white/15 flex flex-col justify-between p-8 sm:p-12 overflow-y-auto"
               >
-                <div>
-                  <h4 className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#9A968E] mb-2">
-                    CONCIERGE & APPOINTMENTS
-                  </h4>
-                  <p className="font-serif text-lg text-[#F4F1EA] font-light leading-relaxed">
-                    Private consultations available by request for tailored commissions, architectural tapestries, and bespoke sizing.
-                  </p>
+                {/* Top Label */}
+                <div className="text-right pb-6 border-b border-white/10">
+                  <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 font-light">
+                    ATELIER DIRECTORY
+                  </span>
                 </div>
 
-                <div className="space-y-3 font-sans text-[11px] tracking-[0.25em] uppercase text-[#9A968E]">
-                  <div>
-                    <span className="block text-[#F4F1EA]">LOCATION</span>
-                    {ATELIER_CONFIG.location}
-                  </div>
-                  <div>
-                    <span className="block text-[#F4F1EA]">INSTAGRAM ARCHIVE</span>
-                    <a
-                      href={ATELIER_CONFIG.instagramUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#C6A972] hover:underline inline-flex items-center gap-1 mt-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
+                {/* Primary Navigation Links (Right-aligned, uppercase geometric light-300) */}
+                <nav className="my-auto py-8 space-y-6 text-right">
+                  {/* 1. THE ATELIER */}
+                  <div
+                    onMouseEnter={() => {
+                      setHoveredItem("atelier");
+                      setActiveSubMenu(null);
+                    }}
+                    className="flex items-center justify-end gap-4 group"
+                  >
+                    {hoveredItem === "atelier" && (
+                      <span className="w-2.5 h-2.5 rounded-full border border-white/60 inline-block transition-all" />
+                    )}
+                    <Link
+                      href="/atelier"
+                      className="font-sans text-sm sm:text-[15px] font-light tracking-[0.22em] uppercase text-white/60 hover:text-white transition-colors"
                     >
-                      {ATELIER_CONFIG.instagramHandle}
-                      <ArrowUpRight strokeWidth={1.25} className="w-3 h-3" />
-                    </a>
+                      THE ATELIER
+                    </Link>
                   </div>
-                </div>
 
-                <div className="pt-4 border-t border-white/10">
-                  <p className="font-serif text-sm italic text-[#9A968E]">
-                    &ldquo;{ATELIER_CONFIG.colophon}&rdquo;
-                  </p>
+                  {/* 2. COLLECTIONS (Expandable) */}
+                  <div
+                    onMouseEnter={() => {
+                      setHoveredItem("collections");
+                      setActiveSubMenu("collections");
+                    }}
+                    className="flex items-center justify-end gap-3 group"
+                  >
+                    {hoveredItem === "collections" && (
+                      <span className="w-2.5 h-2.5 rounded-full border border-white/60 inline-block transition-all" />
+                    )}
+                    <button
+                      onClick={() => setActiveSubMenu((prev) => (prev === "collections" ? null : "collections"))}
+                      className="flex items-center gap-2 font-sans text-sm sm:text-[15px] font-light tracking-[0.22em] uppercase text-white/60 hover:text-white transition-colors focus-visible:outline-none"
+                    >
+                      <span>COLLECTIONS</span>
+                      <ChevronRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  </div>
+
+                  {/* 3. BESPOKE (Expandable) */}
+                  <div
+                    onMouseEnter={() => {
+                      setHoveredItem("bespoke");
+                      setActiveSubMenu("bespoke");
+                    }}
+                    className="flex items-center justify-end gap-3 group"
+                  >
+                    {hoveredItem === "bespoke" && (
+                      <span className="w-2.5 h-2.5 rounded-full border border-white/60 inline-block transition-all" />
+                    )}
+                    <button
+                      onClick={() => setActiveSubMenu((prev) => (prev === "bespoke" ? null : "bespoke"))}
+                      className="flex items-center gap-2 font-sans text-sm sm:text-[15px] font-light tracking-[0.22em] uppercase text-white/60 hover:text-white transition-colors focus-visible:outline-none"
+                    >
+                      <span>BESPOKE</span>
+                      <ChevronRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  </div>
+
+                  {/* 4. PATRONAGE & CARE */}
+                  <div
+                    onMouseEnter={() => {
+                      setHoveredItem("patronage");
+                      setActiveSubMenu(null);
+                    }}
+                    className="flex items-center justify-end gap-4 group"
+                  >
+                    {hoveredItem === "patronage" && (
+                      <span className="w-2.5 h-2.5 rounded-full border border-white/60 inline-block transition-all" />
+                    )}
+                    <Link
+                      href="/patronage"
+                      className="font-sans text-sm sm:text-[15px] font-light tracking-[0.22em] uppercase text-white/60 hover:text-white transition-colors"
+                    >
+                      PATRONAGE &amp; CARE
+                    </Link>
+                  </div>
+
+                  {/* 5. PROVENANCE */}
+                  <div
+                    onMouseEnter={() => {
+                      setHoveredItem("provenance");
+                      setActiveSubMenu(null);
+                    }}
+                    className="flex items-center justify-end gap-4 group"
+                  >
+                    {hoveredItem === "provenance" && (
+                      <span className="w-2.5 h-2.5 rounded-full border border-white/60 inline-block transition-all" />
+                    )}
+                    <Link
+                      href="/provenance"
+                      className="font-sans text-sm sm:text-[15px] font-light tracking-[0.22em] uppercase text-white/60 hover:text-white transition-colors"
+                    >
+                      PROVENANCE
+                    </Link>
+                  </div>
+
+                  {/* 6. BOUTIQUE */}
+                  <div
+                    onMouseEnter={() => {
+                      setHoveredItem("boutique");
+                      setActiveSubMenu(null);
+                    }}
+                    className="flex items-center justify-end gap-4 group"
+                  >
+                    {hoveredItem === "boutique" && (
+                      <span className="w-2.5 h-2.5 rounded-full border border-white/60 inline-block transition-all" />
+                    )}
+                    <Link
+                      href="/boutique"
+                      className="font-sans text-sm sm:text-[15px] font-light tracking-[0.22em] uppercase text-white/60 hover:text-white transition-colors"
+                    >
+                      BOUTIQUE
+                    </Link>
+                  </div>
+                </nav>
+
+                {/* Bottom Footer Info */}
+                <div className="pt-6 border-t border-white/10 text-right text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+                  <span>HYDERABAD / STRICTLY BESPOKE</span>
                 </div>
               </motion.div>
-            </div>
 
-            {/* Bottom Colophon inside Overlay */}
-            <div className="w-full max-w-[1720px] mx-auto pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[10px] tracking-[0.25em] uppercase text-[#9A968E] gap-4">
-              <span>{ATELIER_CONFIG.studioName} / {ATELIER_CONFIG.founded}</span>
-              <span>STRICTLY BESPOKE EDITIONS / HYDERABAD</span>
+              {/* Secondary Expandable Frosted Column (Desktop adjacent slide-out / Mobile overlay switch) */}
+              <AnimatePresence>
+                {activeSubMenu && (
+                  <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -20, opacity: 0 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute sm:relative top-0 left-0 w-full sm:w-[320px] h-full bg-black/85 sm:bg-black/65 backdrop-blur-3xl border-r border-white/10 p-8 sm:p-10 flex flex-col justify-between overflow-y-auto z-20"
+                  >
+                    <div>
+                      {/* Mobile Back Button */}
+                      <button
+                        onClick={() => setActiveSubMenu(null)}
+                        className="sm:hidden flex items-center gap-2 text-white/60 hover:text-white text-[11px] tracking-[0.22em] uppercase font-light mb-6"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>BACK</span>
+                      </button>
+
+                      <div className="pb-4 border-b border-white/10 mb-6">
+                        <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 font-light">
+                          {activeSubMenu === "collections" ? "COLLECTIONS ARCHIVE" : "BESPOKE SERVICES"}
+                        </span>
+                      </div>
+
+                      <div className="space-y-4">
+                        {(activeSubMenu === "collections" ? collectionsSubLinks : bespokeSubLinks).map((sub) => (
+                          <div key={sub.href}>
+                            <Link
+                              href={sub.href}
+                              className="block py-1.5 font-sans text-xs tracking-[0.22em] uppercase font-light text-white/70 hover:text-white hover:translate-x-1 transition-all"
+                            >
+                              {sub.label}
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-white/10">
+                      <p className="text-[10px] font-light text-white/40 tracking-wider leading-relaxed">
+                        Each bespoke creation is cataloged permanently in the Hyderabad atelier records.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

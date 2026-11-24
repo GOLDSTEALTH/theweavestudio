@@ -36,34 +36,47 @@ interface BespokeBouquet3DProps {
 
 type CameraPreset = "STUDIO" | "MACRO" | "CROWN";
 
-function renderBackdropCanvas(
-  canvas: HTMLCanvasElement,
-  centerHex: string,
-  edgeHex: string,
-  floorHex: string
-) {
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+const CYCLORAMA_VERTEX_SHADER = `
+varying vec3 vWorldPosition;
+varying vec2 vUv;
 
-  // Outer studio vignette
-  ctx.fillStyle = edgeHex;
-  ctx.fillRect(0, 0, 512, 512);
-
-  // Soft radial studio spotlight glow behind bouquet
-  const radGrad = ctx.createRadialGradient(256, 220, 25, 256, 220, 270);
-  radGrad.addColorStop(0, centerHex);
-  radGrad.addColorStop(0.55, centerHex + "B3");
-  radGrad.addColorStop(1, edgeHex);
-  ctx.fillStyle = radGrad;
-  ctx.fillRect(0, 0, 512, 512);
-
-  // Studio plinth floor reflection
-  const floorGrad = ctx.createLinearGradient(0, 360, 0, 512);
-  floorGrad.addColorStop(0, "rgba(0,0,0,0)");
-  floorGrad.addColorStop(1, floorHex);
-  ctx.fillStyle = floorGrad;
-  ctx.fillRect(0, 360, 512, 152);
+void main() {
+  vUv = uv;
+  vec4 worldPos = modelMatrix * vec4(position, 1.0);
+  vWorldPosition = worldPos.xyz;
+  gl_Position = projectionMatrix * viewMatrix * worldPos;
 }
+`;
+
+const CYCLORAMA_FRAGMENT_SHADER = `
+uniform vec3 uColorCenter;
+uniform vec3 uColorEdge;
+uniform vec3 uColorFloor;
+varying vec3 vWorldPosition;
+varying vec2 vUv;
+
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+  // Distance from center spotlight focused behind bouquet (0, 1.2)
+  float dist = length(vWorldPosition.xy - vec2(0.0, 1.15)) / 12.5;
+  float radial = smoothstep(0.05, 0.88, dist);
+
+  vec3 wallColor = mix(uColorCenter, uColorEdge, radial);
+
+  // Smooth transition to floor color beneath plinth level
+  float floorFactor = smoothstep(0.35, -0.85, vWorldPosition.y);
+  vec3 finalColor = mix(wallColor, uColorFloor, floorFactor * 0.82);
+
+  // Micro-dithering noise to prevent 8-bit banding on dark gradient studio backdrops
+  float dither = (hash(gl_FragCoord.xy) - 0.5) * (1.2 / 255.0);
+  finalColor += dither;
+
+  gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
+}
+`;
 
 export default function BespokeBouquet3D({
   palette,
@@ -85,9 +98,9 @@ export default function BespokeBouquet3D({
   const isTransitioningCameraRef = useRef(false);
   const isUserInteractingRef = useRef(false);
 
-  // Centered architectural camera framing
-  const targetCamPos = useRef(new THREE.Vector3(0, 1.05, 3.1));
-  const targetCamLook = useRef(new THREE.Vector3(0, 0.82, 0));
+  // Recalibrated fov=34 camera framing: entire pedestal, vessel, and flowers sit comfortably framed
+  const targetCamPos = useRef(new THREE.Vector3(0.35, 1.48, 5.35));
+  const targetCamLook = useRef(new THREE.Vector3(0, 1.02, 0));
 
   // Dynamic yarn colors with luminance lifting for dark palettes
   const currPrimaryCol = useRef(liftYarnAlbedo(palette.primaryHex));
@@ -109,23 +122,20 @@ export default function BespokeBouquet3D({
   const targetEnvIntensity = useRef(st.envIntensity);
   const targetPlinthCol = useRef(new THREE.Color(st.plinthHex));
 
-  // Reactive cyclorama backdrop colors
-  const currBgCenterCol = useRef(new THREE.Color(st.bgCenterHex));
-  const currBgEdgeCol = useRef(new THREE.Color(st.bgEdgeHex));
-  const currBgFloorCol = useRef(new THREE.Color(st.bgFloorHex));
+  // GLSL Cyclorama backdrop uniforms
+  const cycloramaMatRef = useRef<THREE.ShaderMaterial | null>(null);
   const targetBgCenterCol = useRef(new THREE.Color(st.bgCenterHex));
   const targetBgEdgeCol = useRef(new THREE.Color(st.bgEdgeHex));
   const targetBgFloorCol = useRef(new THREE.Color(st.bgFloorHex));
 
   // Scene object references
   const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const keyLightRef = useRef<THREE.DirectionalLight | null>(null);
   const fillLightRef = useRef<THREE.DirectionalLight | null>(null);
-  const rimLightRef = useRef<THREE.SpotLight | null>(null);
+  const rimLightRef = useRef<THREE.DirectionalLight | null>(null);
   const hemiLightRef = useRef<THREE.HemisphereLight | null>(null);
   const plinthMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
-  const backdropCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const backdropTextureRef = useRef<THREE.CanvasTexture | null>(null);
 
   // Materials and swappable groups
   const primaryMatRef = useRef<THREE.MeshPhysicalMaterial | null>(null);
@@ -205,7 +215,7 @@ export default function BespokeBouquet3D({
     }
   }, [isAutoOrbit]);
 
-  // Camera presets: smooth camera glide with snapping prevention
+  // Camera presets: smooth camera glide with portrait aspect ratio compensation
   const applyPreset = useCallback((preset: CameraPreset) => {
     setActivePreset(preset);
     setIsAutoOrbit(false);
@@ -213,18 +223,21 @@ export default function BespokeBouquet3D({
       controlsRef.current.autoRotate = false;
     }
 
+    const container = mountRef.current;
+    const isPortrait = container && container.clientWidth / Math.max(container.clientHeight, 1) < 0.95;
+
     switch (preset) {
       case "STUDIO":
-        targetCamPos.current.set(0, 1.05, 3.1);
-        targetCamLook.current.set(0, 0.82, 0);
+        targetCamPos.current.set(0.35, 1.48, isPortrait ? 6.15 : 5.35);
+        targetCamLook.current.set(0, 1.02, 0);
         break;
       case "MACRO":
-        targetCamPos.current.set(-0.28, 1.22, 1.22);
-        targetCamLook.current.set(-0.02, 1.08, 0.14);
+        targetCamPos.current.set(-0.55, 1.55, 2.25);
+        targetCamLook.current.set(-0.05, 1.32, 0.15);
         break;
       case "CROWN":
-        targetCamPos.current.set(0, 2.7, 1.55);
-        targetCamLook.current.set(0, 0.95, 0);
+        targetCamPos.current.set(0, 4.35, 1.35);
+        targetCamLook.current.set(0, 1.15, 0);
         break;
     }
     isTransitioningCameraRef.current = true;
@@ -241,7 +254,8 @@ export default function BespokeBouquet3D({
       controlsRef.current.target
     );
     const dist = dir.length();
-    const newDist = Math.max(1.1, Math.min(4.5, dist + delta));
+    // Zoom clamp: min 1.8, max 7.5
+    const newDist = Math.max(1.8, Math.min(7.5, dist + delta));
     dir.setLength(newDist);
     targetCamPos.current.copy(controlsRef.current.target).add(dir);
     targetCamLook.current.copy(controlsRef.current.target);
@@ -266,20 +280,20 @@ export default function BespokeBouquet3D({
     const createdGeometries: THREE.BufferGeometry[] = [];
 
     try {
-      // 1. Scene & Camera Setup
+      // 1. Scene & Recalibrated fov=34 Camera Setup
       scene = new THREE.Scene();
       sceneRef.current = scene;
 
-      camera = new THREE.PerspectiveCamera(
-        36,
-        container.clientWidth / Math.max(container.clientHeight, 1),
-        0.1,
-        30
-      );
+      const aspect = container.clientWidth / Math.max(container.clientHeight, 1);
+      if (aspect < 0.95) {
+        targetCamPos.current.z = 6.15;
+      }
+
+      camera = new THREE.PerspectiveCamera(34, aspect, 0.1, 35);
       camera.position.copy(targetCamPos.current);
       cameraRef.current = camera;
 
-      // 2. High-Fidelity WebGL Renderer
+      // 2. High-Precision WebGL Renderer
       renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: false,
@@ -292,10 +306,11 @@ export default function BespokeBouquet3D({
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.15;
-      renderer.setClearColor(0x0a0a0b, 1);
+      renderer.setClearColor(new THREE.Color(st.bgEdgeHex), 1);
+      rendererRef.current = renderer;
       container.appendChild(renderer.domElement);
 
-      // 3. Procedural Studio Environment Map (RoomEnvironment)
+      // 3. Procedural Studio Environment Map
       pmremGenerator = new THREE.PMREMGenerator(renderer);
       pmremGenerator.compileEquirectangularShader();
       const roomEnv = new RoomEnvironment();
@@ -303,75 +318,68 @@ export default function BespokeBouquet3D({
       scene.environment = envTargetTexture;
       scene.environmentIntensity = st.envIntensity;
 
-      // 4. Palette-Reactive Studio Cyclorama Backdrop
-      const backdropCanvas = document.createElement("canvas");
-      backdropCanvas.width = 512;
-      backdropCanvas.height = 512;
-      renderBackdropCanvas(backdropCanvas, st.bgCenterHex, st.bgEdgeHex, st.bgFloorHex);
-      backdropCanvasRef.current = backdropCanvas;
+      // 4. Palette-Reactive GLSL Studio Cyclorama (SphereGeometry 18, 32, 24 with micro-dithering)
+      const cycloramaGeom = new THREE.SphereGeometry(18, 32, 24);
+      createdGeometries.push(cycloramaGeom);
 
-      const backdropTexture = new THREE.CanvasTexture(backdropCanvas);
-      backdropTexture.colorSpace = THREE.SRGBColorSpace;
-      backdropTextureRef.current = backdropTexture;
-      createdTextures.push(backdropTexture);
-
-      const backdropGeom = new THREE.SphereGeometry(14, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.55);
-      createdGeometries.push(backdropGeom);
-      const backdropMat = new THREE.MeshBasicMaterial({
-        map: backdropTexture,
+      const cycloramaMat = new THREE.ShaderMaterial({
+        vertexShader: CYCLORAMA_VERTEX_SHADER,
+        fragmentShader: CYCLORAMA_FRAGMENT_SHADER,
+        uniforms: {
+          uColorCenter: { value: new THREE.Color(st.bgCenterHex) },
+          uColorEdge: { value: new THREE.Color(st.bgEdgeHex) },
+          uColorFloor: { value: new THREE.Color(st.bgFloorHex) },
+        },
         side: THREE.BackSide,
         depthWrite: false,
       });
-      createdMaterials.push(backdropMat);
-      const backdropMesh = new THREE.Mesh(backdropGeom, backdropMat);
-      backdropMesh.position.set(0, -0.4, -2.5);
-      scene.add(backdropMesh);
+      createdMaterials.push(cycloramaMat);
+      cycloramaMatRef.current = cycloramaMat;
 
-      // 5. Physically Calibrated Three-Point Raking Studio Lighting
+      const cycloramaMesh = new THREE.Mesh(cycloramaGeom, cycloramaMat);
+      cycloramaMesh.position.set(0, 0, 0);
+      scene.add(cycloramaMesh);
+
+      // 5. Dramatic Side-Raking Shadows (High-precision Directional Key Light)
       const hemiLight = new THREE.HemisphereLight(st.hemiSkyHex, st.hemiGroundHex, st.hemiIntensity);
       scene.add(hemiLight);
       hemiLightRef.current = hemiLight;
 
-      // Side-Raking Directional Key Light (tight shadow frustum for razor-sharp micro-shadows)
       const keyLight = new THREE.DirectionalLight(st.keyLightHex, st.keyIntensity);
-      keyLight.position.set(2.8, 4.4, 3.2);
+      keyLight.position.set(3.6, 3.1, 2.5);
+      keyLight.target.position.set(0, 1.05, 0);
+      scene.add(keyLight.target);
       keyLight.castShadow = true;
       keyLight.shadow.mapSize.set(2048, 2048);
-      keyLight.shadow.camera.near = 0.5;
-      keyLight.shadow.camera.far = 12;
-      keyLight.shadow.camera.left = -1.6;
-      keyLight.shadow.camera.right = 1.6;
+      keyLight.shadow.camera.near = 1.0;
+      keyLight.shadow.camera.far = 11.0;
+      keyLight.shadow.camera.left = -2.0;
+      keyLight.shadow.camera.right = 2.0;
       keyLight.shadow.camera.top = 2.4;
       keyLight.shadow.camera.bottom = -0.6;
-      keyLight.shadow.bias = -0.0004;
-      keyLight.shadow.normalBias = 0.025;
+      keyLight.shadow.bias = -0.00035;
+      keyLight.shadow.normalBias = 0.004;
+      keyLight.shadow.radius = 2.5;
       scene.add(keyLight);
       keyLightRef.current = keyLight;
 
-      // Cool Editorial Fill Light (kept low to preserve deep inter-petal contrast)
+      // Low opposite fill light to carve deep contrast
       const fillLight = new THREE.DirectionalLight(st.fillLightHex, st.fillIntensity);
-      fillLight.position.set(-3.5, 2.0, 1.8);
+      fillLight.position.set(-3.6, 1.8, 2.0);
+      fillLight.target.position.set(0, 1.0, 0);
+      scene.add(fillLight.target);
       scene.add(fillLight);
       fillLightRef.current = fillLight;
 
-      // Crisp Back-Rim Spotlight (silhouette halo)
-      const rimLight = new THREE.SpotLight(st.rimLightHex, st.rimIntensity);
-      rimLight.position.set(-0.8, 3.6, -3.2);
-      rimLight.angle = Math.PI / 3;
-      rimLight.penumbra = 0.85;
-      rimLight.decay = 2;
-      rimLight.distance = 12;
-      scene.add(rimLight);
-      rimLight.target.position.set(0, 0.9, 0);
+      // Strong back-left rim light for luminous fuzzy yarn edge separation
+      const rimLight = new THREE.DirectionalLight(st.rimLightHex, st.rimIntensity);
+      rimLight.position.set(-2.2, 3.0, -3.5);
+      rimLight.target.position.set(0, 1.0, 0);
       scene.add(rimLight.target);
+      scene.add(rimLight);
       rimLightRef.current = rimLight;
 
-      // Subtle under-bloom soft bounce
-      const underBounce = new THREE.PointLight(0xf3e8d4, 0.6, 4, 2);
-      underBounce.position.set(0, 0.25, 1.4);
-      scene.add(underBounce);
-
-      // 6. Grounded Plinth & Pedestal
+      // 6. Grounded Plinth & Pedestal (Top surface grounded at exact world y = 0.0)
       const plinthGroup = new THREE.Group();
       plinthGroup.position.set(0, 0, 0);
 
@@ -384,37 +392,37 @@ export default function BespokeBouquet3D({
       plinthMatRef.current = plinthMat;
 
       const brassRingMat = new THREE.MeshStandardMaterial({
-        color: 0xc6a972,
+        color: 0xffffff,
         roughness: 0.25,
         metalness: 0.9,
       });
       createdMaterials.push(brassRingMat);
 
-      // Two-tier slate pedestal
-      const lowerBaseGeom = new THREE.CylinderGeometry(1.65, 1.72, 0.12, 48);
+      // Two-tier pedestal: lower base from y = -0.16 to -0.08, upper pedestal from y = -0.08 to 0.00
+      const lowerBaseGeom = new THREE.CylinderGeometry(1.65, 1.72, 0.08, 48);
       createdGeometries.push(lowerBaseGeom);
       const lowerBase = new THREE.Mesh(lowerBaseGeom, plinthMat);
-      lowerBase.position.y = -0.06;
+      lowerBase.position.y = -0.12;
       lowerBase.receiveShadow = true;
       plinthGroup.add(lowerBase);
 
-      const upperPedestalGeom = new THREE.CylinderGeometry(1.22, 1.28, 0.16, 48);
+      const upperPedestalGeom = new THREE.CylinderGeometry(1.22, 1.28, 0.08, 48);
       createdGeometries.push(upperPedestalGeom);
       const upperPedestal = new THREE.Mesh(upperPedestalGeom, plinthMat);
-      upperPedestal.position.y = 0.08;
+      upperPedestal.position.y = -0.04; // top flush at y = 0.0
       upperPedestal.receiveShadow = true;
       plinthGroup.add(upperPedestal);
 
-      // Brushed champagne hairline inlay ring
-      const ringGeom = new THREE.TorusGeometry(1.23, 0.009, 12, 64);
+      // Hairline inlay ring
+      const ringGeom = new THREE.TorusGeometry(1.23, 0.006, 12, 64);
       ringGeom.rotateX(Math.PI / 2);
       createdGeometries.push(ringGeom);
       const hairlineRing = new THREE.Mesh(ringGeom, brassRingMat);
-      hairlineRing.position.y = 0.16;
+      hairlineRing.position.y = 0.001;
       hairlineRing.receiveShadow = true;
       plinthGroup.add(hairlineRing);
 
-      // Contact Shadow Decal
+      // High-precision Contact Shadow Decal at exact y = 0.002
       const shadowTex = createContactShadowTexture(256);
       if (shadowTex) {
         createdTextures.push(shadowTex);
@@ -424,17 +432,17 @@ export default function BespokeBouquet3D({
         const shadowMat = new THREE.MeshBasicMaterial({
           map: shadowTex,
           transparent: true,
-          opacity: 0.85,
+          opacity: 0.88,
           depthWrite: false,
         });
         createdMaterials.push(shadowMat);
         const shadowMesh = new THREE.Mesh(shadowGeom, shadowMat);
-        shadowMesh.position.y = 0.162;
+        shadowMesh.position.y = 0.002;
         plinthGroup.add(shadowMesh);
       }
       scene.add(plinthGroup);
 
-      // 7. Procedural Crochet Yarn PBR Materials
+      // 7. Procedural Crochet Yarn PBR Materials with vertexColors enabled
       const textures: CrochetTextureSet | null = createCrochetTextureSet(512);
       if (textures) {
         createdTextures.push(textures.albedoMap, textures.normalMap, textures.roughnessMap);
@@ -445,6 +453,7 @@ export default function BespokeBouquet3D({
       const createYarnMat = (initialColor: THREE.Color) => {
         const mat = new THREE.MeshPhysicalMaterial({
           color: initialColor,
+          vertexColors: true,
           roughness: initialFiberParams.roughness,
           metalness: initialFiberParams.metalness,
           sheen: initialFiberParams.sheen,
@@ -470,9 +479,10 @@ export default function BespokeBouquet3D({
       primaryMatRef.current = primaryMat;
       secondaryMatRef.current = secondaryMat;
 
-      // Sage green crocheted calyx & foliage material
+      // Sage green calyx & foliage material (with cloned textures so fiber repeat changes do not affect foliage)
       const foliageMat = new THREE.MeshPhysicalMaterial({
         color: new THREE.Color("#414F44"),
+        vertexColors: true,
         roughness: 0.86,
         metalness: 0.0,
         sheen: 0.65,
@@ -480,15 +490,21 @@ export default function BespokeBouquet3D({
         sheenColor: new THREE.Color("#56695B"),
       });
       if (textures) {
-        foliageMat.map = textures.albedoMap;
-        foliageMat.normalMap = textures.normalMap;
+        const foliageAlbedo = textures.albedoMap.clone();
+        const foliageNormal = textures.normalMap.clone();
+        const foliageRough = textures.roughnessMap.clone();
+        foliageAlbedo.repeat.set(4, 4);
+        foliageNormal.repeat.set(4, 4);
+        foliageRough.repeat.set(4, 4);
+        createdTextures.push(foliageAlbedo, foliageNormal, foliageRough);
+        foliageMat.map = foliageAlbedo;
+        foliageMat.normalMap = foliageNormal;
         foliageMat.normalScale.set(0.9, 0.9);
-        foliageMat.roughnessMap = textures.roughnessMap;
-        foliageMat.map.repeat.set(5, 5);
+        foliageMat.roughnessMap = foliageRough;
       }
       createdMaterials.push(foliageMat);
 
-      // Stamen French-knot material (deep warm amber/espresso)
+      // Stamen French-knot material
       const stamenMat = new THREE.MeshPhysicalMaterial({
         color: new THREE.Color("#6A4E2B"),
         roughness: 0.92,
@@ -506,9 +522,9 @@ export default function BespokeBouquet3D({
       });
       createdMaterials.push(ceramicMat);
 
-      // Brushed champagne brass collar material
+      // Brushed collar material
       const brassMat = new THREE.MeshStandardMaterial({
-        color: 0xc6a972,
+        color: 0xdedede,
         roughness: 0.28,
         metalness: 0.88,
       });
@@ -530,7 +546,7 @@ export default function BespokeBouquet3D({
 
       // Satin ribbon material
       const ribbonMat = new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color("#C6A972"),
+        color: new THREE.Color("#D9D0C1"),
         roughness: 0.35,
         metalness: 0.2,
         sheen: 1.0,
@@ -551,9 +567,9 @@ export default function BespokeBouquet3D({
       });
       createdMaterials.push(pearlMat);
 
-      // 8. Bouquet Root Group (grounded on top of the plinth)
+      // 8. Bouquet Root Group (grounded at exact world y = 0.0, total height ~2.05 units)
       const bouquetRoot = new THREE.Group();
-      bouquetRoot.position.set(0, 0.42, 0);
+      bouquetRoot.position.set(0, 0.0, 0);
       bouquetRootRef.current = bouquetRoot;
       scene.add(bouquetRoot);
 
@@ -562,79 +578,78 @@ export default function BespokeBouquet3D({
 
       // Three Hero Crocheted Roses
       const rose1 = buildCrochetRose(primaryMat, secondaryMat, foliageMat, 0.1);
-      rose1.position.set(0, 0.98, 0.12);
-      rose1.rotation.set(0.15, -0.2, 0.05);
-      rose1.scale.set(1.05, 1.05, 1.05);
+      rose1.position.set(0, 1.25, 0.10);
+      rose1.rotation.set(0.12, -0.2, 0.04);
       flowersGroup.add(rose1);
 
       const rose2 = buildCrochetRose(primaryMat, secondaryMat, foliageMat, 0.4);
-      rose2.position.set(-0.38, 0.78, 0.22);
-      rose2.rotation.set(0.35, -0.45, -0.2);
+      rose2.position.set(-0.32, 1.08, 0.18);
+      rose2.rotation.set(0.28, -0.4, -0.15);
       rose2.scale.set(0.95, 0.95, 0.95);
       flowersGroup.add(rose2);
 
       const rose3 = buildCrochetRose(primaryMat, secondaryMat, foliageMat, 0.7);
-      rose3.position.set(0.42, 0.85, 0.08);
-      rose3.rotation.set(0.25, 0.55, 0.15);
+      rose3.position.set(0.34, 1.15, 0.08);
+      rose3.rotation.set(0.20, 0.45, 0.12);
       rose3.scale.set(0.98, 0.98, 0.98);
       flowersGroup.add(rose3);
 
       // Three Crocheted Tulips / Ranunculus
       const tulip1 = buildCrochetTulip(secondaryMat, stamenMat, foliageMat, 0.2);
-      tulip1.position.set(-0.35, 1.18, -0.22);
-      tulip1.rotation.set(-0.15, -0.3, -0.15);
-      tulip1.scale.set(0.92, 0.92, 0.92);
+      tulip1.position.set(-0.28, 1.42, -0.15);
+      tulip1.rotation.set(-0.12, -0.25, -0.12);
+      tulip1.scale.set(0.95, 0.95, 0.95);
       flowersGroup.add(tulip1);
 
       const tulip2 = buildCrochetTulip(secondaryMat, stamenMat, foliageMat, 0.6);
-      tulip2.position.set(0.32, 1.12, -0.18);
-      tulip2.rotation.set(-0.12, 0.4, 0.1);
-      tulip2.scale.set(0.94, 0.94, 0.94);
+      tulip2.position.set(0.26, 1.38, -0.12);
+      tulip2.rotation.set(-0.10, 0.32, 0.08);
+      tulip2.scale.set(0.95, 0.95, 0.95);
       flowersGroup.add(tulip2);
 
       const tulip3 = buildCrochetTulip(primaryMat, stamenMat, foliageMat, 0.9);
-      tulip3.position.set(0.08, 0.68, 0.38);
-      tulip3.rotation.set(0.48, 0.12, -0.05);
-      tulip3.scale.set(0.88, 0.88, 0.88);
+      tulip3.position.set(0.05, 0.98, 0.28);
+      tulip3.rotation.set(0.38, 0.10, -0.05);
+      tulip3.scale.set(0.90, 0.90, 0.90);
       flowersGroup.add(tulip3);
 
-      // Three Micro-Crochet Accent Buds
+      // Three Micro-Crochet Accent Buds (built with sculpted petals and sepals)
       const bud1 = buildCrochetBud(secondaryMat, foliageMat);
-      bud1.position.set(-0.55, 1.38, 0.05);
-      bud1.rotation.set(0.2, -0.3, 0.3);
-      bud1.scale.set(0.8, 0.8, 0.8);
+      bud1.position.set(-0.42, 1.62, 0.05);
+      bud1.rotation.set(0.18, -0.25, 0.25);
+      bud1.scale.set(0.90, 0.90, 0.90);
       flowersGroup.add(bud1);
 
       const bud2 = buildCrochetBud(secondaryMat, foliageMat);
-      bud2.position.set(0.58, 1.42, -0.08);
-      bud2.rotation.set(-0.15, 0.35, -0.28);
-      bud2.scale.set(0.82, 0.82, 0.82);
+      bud2.position.set(0.45, 1.66, -0.06);
+      bud2.rotation.set(-0.12, 0.30, -0.22);
+      bud2.scale.set(0.90, 0.90, 0.90);
       flowersGroup.add(bud2);
 
       const bud3 = buildCrochetBud(primaryMat, foliageMat);
-      bud3.position.set(-0.05, 1.48, -0.32);
-      bud3.rotation.set(-0.35, 0.1, 0.05);
-      bud3.scale.set(0.85, 0.85, 0.85);
+      bud3.position.set(-0.05, 1.72, -0.24);
+      bud3.rotation.set(-0.28, 0.08, 0.05);
+      bud3.scale.set(0.92, 0.92, 0.92);
       flowersGroup.add(bud3);
 
-      // Eight Pointed veined crochet leaves around collar & flowers
+      // Eight veined crochet leaves around collar & flowers
       const leafGeom = createSculptedLeafGeometry({
-        width: 0.36,
-        length: 0.82,
-        curvature: 0.22,
-        thickness: 0.02,
+        width: 0.28,
+        length: 0.65,
+        curvature: 0.20,
+        thickness: 0.016,
       });
       createdGeometries.push(leafGeom);
 
       const leafConfigs = [
-        { pos: [-0.45, 0.55, 0.28], rot: [0.65, -0.6, -0.4], s: 1.0 },
-        { pos: [0.48, 0.58, 0.22], rot: [0.55, 0.7, 0.3], s: 0.95 },
-        { pos: [-0.22, 0.48, 0.42], rot: [0.85, -0.2, -0.15], s: 0.9 },
-        { pos: [0.25, 0.46, 0.44], rot: [0.8, 0.3, 0.12], s: 0.92 },
-        { pos: [-0.52, 0.92, -0.15], rot: [0.1, -1.1, -0.2], s: 0.85 },
-        { pos: [0.55, 0.95, -0.12], rot: [0.15, 1.05, 0.22], s: 0.88 },
-        { pos: [-0.15, 1.15, -0.38], rot: [-0.4, -0.3, 0.1], s: 0.82 },
-        { pos: [0.2, 1.18, -0.35], rot: [-0.35, 0.4, -0.12], s: 0.84 },
+        { pos: [-0.38, 0.95, 0.22], rot: [0.65, -0.6, -0.4], s: 1.0 },
+        { pos: [0.40, 0.98, 0.18], rot: [0.55, 0.7, 0.3], s: 0.95 },
+        { pos: [-0.18, 0.88, 0.32], rot: [0.85, -0.2, -0.15], s: 0.9 },
+        { pos: [0.20, 0.86, 0.34], rot: [0.8, 0.3, 0.12], s: 0.92 },
+        { pos: [-0.44, 1.25, -0.12], rot: [0.1, -1.1, -0.2], s: 0.85 },
+        { pos: [0.46, 1.28, -0.10], rot: [0.15, 1.05, 0.22], s: 0.88 },
+        { pos: [-0.12, 1.45, -0.30], rot: [-0.4, -0.3, 0.1], s: 0.82 },
+        { pos: [0.16, 1.48, -0.28], rot: [-0.35, 0.4, -0.12], s: 0.84 },
       ];
 
       leafConfigs.forEach((cfg) => {
@@ -647,18 +662,18 @@ export default function BespokeBouquet3D({
         flowersGroup.add(leafMesh);
       });
 
-      // Natural Catmull-Rom tube stems converging down into vessel
+      // Natural tube stems converging into vessel cavity
       const stemPointsList = [
-        [new THREE.Vector3(0, 0.95, 0.12), new THREE.Vector3(0.02, 0.45, 0.05), new THREE.Vector3(0, -0.25, 0)],
-        [new THREE.Vector3(-0.38, 0.75, 0.22), new THREE.Vector3(-0.15, 0.35, 0.1), new THREE.Vector3(0, -0.25, 0)],
-        [new THREE.Vector3(0.42, 0.82, 0.08), new THREE.Vector3(0.18, 0.38, 0.05), new THREE.Vector3(0, -0.25, 0)],
-        [new THREE.Vector3(-0.35, 1.15, -0.22), new THREE.Vector3(-0.12, 0.52, -0.08), new THREE.Vector3(0, -0.25, 0)],
-        [new THREE.Vector3(0.32, 1.08, -0.18), new THREE.Vector3(0.12, 0.48, -0.06), new THREE.Vector3(0, -0.25, 0)],
+        [new THREE.Vector3(0, 1.22, 0.10), new THREE.Vector3(0.02, 0.85, 0.05), new THREE.Vector3(0, 0.15, 0)],
+        [new THREE.Vector3(-0.32, 1.05, 0.18), new THREE.Vector3(-0.12, 0.75, 0.08), new THREE.Vector3(0, 0.15, 0)],
+        [new THREE.Vector3(0.34, 1.12, 0.08), new THREE.Vector3(0.14, 0.78, 0.04), new THREE.Vector3(0, 0.15, 0)],
+        [new THREE.Vector3(-0.28, 1.38, -0.15), new THREE.Vector3(-0.10, 0.88, -0.06), new THREE.Vector3(0, 0.15, 0)],
+        [new THREE.Vector3(0.26, 1.35, -0.12), new THREE.Vector3(0.10, 0.86, -0.05), new THREE.Vector3(0, 0.15, 0)],
       ];
 
       stemPointsList.forEach((pts) => {
         const curve = new THREE.CatmullRomCurve3(pts);
-        const tubeGeom = new THREE.TubeGeometry(curve, 18, 0.028, 8, false);
+        const tubeGeom = new THREE.TubeGeometry(curve, 18, 0.024, 8, false);
         createdGeometries.push(tubeGeom);
         const tubeMesh = new THREE.Mesh(tubeGeom, foliageMat);
         tubeMesh.castShadow = true;
@@ -668,26 +683,26 @@ export default function BespokeBouquet3D({
 
       bouquetRoot.add(flowersGroup);
 
-      // 10. Swappable Vessels (inside bouquetRoot)
+      // 10. Swappable Vessels (anchored flush at local y = 0.0)
       const stonewareGrp = buildStonewareVessel(ceramicMat, brassMat);
-      stonewareGrp.position.set(0, 0.18, 0);
+      stonewareGrp.position.set(0, 0.0, 0);
       stonewareGrp.visible = vessel.id === "stoneware-vessel";
       bouquetRoot.add(stonewareGrp);
       vesselGroupRef.current["stoneware-vessel"] = stonewareGrp;
 
       const linenGrp = buildLinenWrap(linenMat, ribbonMat);
-      linenGrp.position.set(0, 0.42, 0);
+      linenGrp.position.set(0, 0.0, 0);
       linenGrp.visible = vessel.id === "linen-wrap";
       bouquetRoot.add(linenGrp);
       vesselGroupRef.current["linen-wrap"] = linenGrp;
 
       const brassGrp = buildBrassCollar(brassMat, foliageMat);
-      brassGrp.position.set(0, 0.32, 0);
+      brassGrp.position.set(0, 0.0, 0);
       brassGrp.visible = vessel.id === "brass-collar";
       bouquetRoot.add(brassGrp);
       vesselGroupRef.current["brass-collar"] = brassGrp;
 
-      // 11. Swappable Accents (inside bouquetRoot)
+      // 11. Swappable Accents
       const eucaGrp = buildEucalyptusSprigs(foliageMat, foliageMat);
       eucaGrp.visible = accent.id === "eucalyptus-sprigs";
       bouquetRoot.add(eucaGrp);
@@ -703,15 +718,15 @@ export default function BespokeBouquet3D({
       bouquetRoot.add(pureGrp);
       accentGroupRef.current["pure-blooms"] = pureGrp;
 
-      // 12. Non-Intrusive Orbit Controls (NO wheel zoom trapping)
+      // 12. Non-Intrusive Orbit Controls
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.enableZoom = false; // Page scrolling is preserved
+      controls.enableZoom = false; // Page scrolling preserved, HUD zoom buttons available
       controls.autoRotate = isAutoOrbit;
       controls.autoRotateSpeed = 1.0;
-      controls.minPolarAngle = Math.PI * 0.15;
-      controls.maxPolarAngle = Math.PI * 0.52; // Prevents viewing beneath the plinth
+      controls.minPolarAngle = Math.PI * 0.12;
+      controls.maxPolarAngle = Math.PI * 0.52; // Prevents viewing beneath plinth
       controls.target.copy(targetCamLook.current);
       controlsRef.current = controls;
 
@@ -748,7 +763,7 @@ export default function BespokeBouquet3D({
       );
       intersectionObserver.observe(container);
 
-      // 13. Animation Loop with delta time damping for 60Hz/120Hz/180Hz parity
+      // 13. Animation Loop with smooth lerp (1 - exp(-4.5 * dt))
       let lastTime = performance.now();
 
       function animate(now: number) {
@@ -762,9 +777,9 @@ export default function BespokeBouquet3D({
         const dt = Math.min((now - lastTime) / 1000, 0.1);
         lastTime = now;
 
-        const damping = 1 - Math.exp(-6 * dt);
+        const damping = 1 - Math.exp(-4.5 * dt);
 
-        // Smooth delta-time yarn color lerping
+        // Yarn color lerping
         currPrimaryCol.current.lerp(targetPrimaryCol.current, damping);
         currSecondaryCol.current.lerp(targetSecondaryCol.current, damping);
 
@@ -820,40 +835,22 @@ export default function BespokeBouquet3D({
           plinthMatRef.current.color.lerp(targetPlinthCol.current, damping);
         }
 
-        // Palette-reactive cyclorama backdrop lerp
-        const cCenter = currBgCenterCol.current;
-        const tCenter = targetBgCenterCol.current;
-        const cEdge = currBgEdgeCol.current;
-        const tEdge = targetBgEdgeCol.current;
-        const bgDiff =
-          Math.abs(cCenter.r - tCenter.r) +
-          Math.abs(cCenter.g - tCenter.g) +
-          Math.abs(cCenter.b - tCenter.b) +
-          Math.abs(cEdge.r - tEdge.r) +
-          Math.abs(cEdge.g - tEdge.g) +
-          Math.abs(cEdge.b - tEdge.b);
-
-        if (bgDiff > 0.003) {
-          currBgCenterCol.current.lerp(targetBgCenterCol.current, damping * 1.5);
-          currBgEdgeCol.current.lerp(targetBgEdgeCol.current, damping * 1.5);
-          currBgFloorCol.current.lerp(targetBgFloorCol.current, damping * 1.5);
-
-          if (backdropCanvasRef.current && backdropTextureRef.current) {
-            renderBackdropCanvas(
-              backdropCanvasRef.current,
-              "#" + currBgCenterCol.current.getHexString(),
-              "#" + currBgEdgeCol.current.getHexString(),
-              "#" + currBgFloorCol.current.getHexString()
-            );
-            backdropTextureRef.current.needsUpdate = true;
-          }
+        // GLSL Cyclorama backdrop uniforms smooth lerp
+        if (cycloramaMatRef.current) {
+          cycloramaMatRef.current.uniforms.uColorCenter.value.lerp(targetBgCenterCol.current, damping);
+          cycloramaMatRef.current.uniforms.uColorEdge.value.lerp(targetBgEdgeCol.current, damping);
+          cycloramaMatRef.current.uniforms.uColorFloor.value.lerp(targetBgFloorCol.current, damping);
         }
 
-        // Camera lerping ONLY when a preset or zoom button is transitioning
+        if (rendererRef.current) {
+          rendererRef.current.setClearColor(cycloramaMatRef.current?.uniforms.uColorEdge.value || 0x000000, 1);
+        }
+
+        // Camera lerping on preset or zoom button clicks
         if (isTransitioningCameraRef.current && !isUserInteractingRef.current) {
           camera.position.lerp(targetCamPos.current, damping * 1.5);
           controls.target.lerp(targetCamLook.current, damping * 1.5);
-          if (camera.position.distanceTo(targetCamPos.current) < 0.015) {
+          if (camera.position.distanceTo(targetCamPos.current) < 0.012) {
             isTransitioningCameraRef.current = false;
           }
         }
@@ -898,20 +895,20 @@ export default function BespokeBouquet3D({
       setHasWebGLError(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Mounts once only!
+  }, []);
 
   if (hasWebGLError) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-[#0D0D0F] p-8 text-center border border-white/10">
+      <div className="w-full h-full flex items-center justify-center bg-[#151515] p-8 text-center border border-white/15">
         <div className="space-y-4 max-w-md">
-          <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#C6A972]">
+          <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-white/60">
             BESPOKE STAGE
           </span>
-          <h4 className="font-serif text-2xl text-[#F4F1EA]">
-            3D Studio Preview Fallback
+          <h4 className="font-sans text-xl font-light tracking-[0.2em] uppercase text-white">
+            3D STUDIO PREVIEW
           </h4>
-          <p className="font-sans text-xs text-[#9A968E] leading-relaxed">
-            WebGL acceleration is restricted on this client. Your bespoke selections continue to update the live Commission Dossier ledger below.
+          <p className="font-sans text-xs text-white/60 font-light leading-relaxed">
+            WebGL acceleration is restricted on this browser. Your bespoke selections continue to update the live Commission Dossier ledger.
           </p>
         </div>
       </div>
@@ -919,8 +916,8 @@ export default function BespokeBouquet3D({
   }
 
   return (
-    <div className="relative w-full h-full select-none overflow-hidden bg-[#0A0A0B]">
-      {/* Three.js Canvas Mount Container */}
+    <div className="relative w-full h-full select-none overflow-hidden bg-[#000000]">
+      {/* Three.js Canvas Mount */}
       <div
         ref={mountRef}
         className={`w-full h-full ${
@@ -929,16 +926,16 @@ export default function BespokeBouquet3D({
       />
 
       {/* Atmospheric Gallery Tag & Non-Floral Silhouette Badge */}
-      <div className="absolute top-4 left-4 z-20 pointer-events-none flex flex-col gap-2">
-        <div className="px-3 py-1.5 bg-[#0A0A0B]/90 border border-white/10 backdrop-blur-md">
-          <span className="font-sans text-[8px] sm:text-[9px] tracking-[0.25em] uppercase text-[#C6A972] font-medium">
+      <div className="absolute top-6 left-6 z-20 pointer-events-none flex flex-col gap-2">
+        <div className="px-3.5 py-2 bg-black/75 border border-white/20 backdrop-blur-xl">
+          <span className="font-sans text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-white font-light">
             ATMOSPHERE: {palette.stageTheme.atmosphereLabel}
           </span>
         </div>
 
         {!isBotanical && (
-          <div className="px-3 py-1.5 bg-[#0A0A0B]/90 border border-[#C6A972]/30 backdrop-blur-md">
-            <span className="font-sans text-[9px] tracking-[0.25em] uppercase text-[#C6A972]">
+          <div className="px-3.5 py-2 bg-black/75 border border-white/20 backdrop-blur-xl">
+            <span className="font-sans text-[9px] tracking-[0.22em] uppercase text-white/70 font-light">
               LIVE FIBER &amp; PALETTE PREVIEW ON BOTANICAL STUDY
             </span>
           </div>
@@ -946,14 +943,14 @@ export default function BespokeBouquet3D({
       </div>
 
       {/* Camera Presets & HUD Controls */}
-      <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2 pointer-events-auto">
-        <div className="flex items-center gap-1.5 p-1 bg-[#0A0A0B]/85 backdrop-blur-md border border-white/10">
+      <div className="absolute top-6 right-6 z-20 flex flex-col items-end gap-2.5 pointer-events-auto">
+        <div className="flex items-center gap-1.5 p-1.5 bg-black/75 backdrop-blur-2xl border border-white/15 rounded-full">
           <button
             onClick={() => applyPreset("STUDIO")}
-            className={`px-2.5 py-1 font-sans text-[9px] tracking-[0.2em] uppercase transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+            className={`px-3 py-1 font-sans text-[9px] tracking-[0.22em] uppercase rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70 ${
               activePreset === "STUDIO"
-                ? "bg-[#C6A972] text-[#0A0A0B] font-medium"
-                : "text-[#9A968E] hover:text-[#F4F1EA]"
+                ? "bg-white text-black font-normal"
+                : "text-white/60 hover:text-white"
             }`}
             title="Studio Overall View"
           >
@@ -961,10 +958,10 @@ export default function BespokeBouquet3D({
           </button>
           <button
             onClick={() => applyPreset("MACRO")}
-            className={`px-2.5 py-1 font-sans text-[9px] tracking-[0.2em] uppercase transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+            className={`px-3 py-1 font-sans text-[9px] tracking-[0.22em] uppercase rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70 ${
               activePreset === "MACRO"
-                ? "bg-[#C6A972] text-[#0A0A0B] font-medium"
-                : "text-[#9A968E] hover:text-[#F4F1EA]"
+                ? "bg-white text-black font-normal"
+                : "text-white/60 hover:text-white"
             }`}
             title="Macro Stitch Inspection"
           >
@@ -972,10 +969,10 @@ export default function BespokeBouquet3D({
           </button>
           <button
             onClick={() => applyPreset("CROWN")}
-            className={`px-2.5 py-1 font-sans text-[9px] tracking-[0.2em] uppercase transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+            className={`px-3 py-1 font-sans text-[9px] tracking-[0.22em] uppercase rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70 ${
               activePreset === "CROWN"
-                ? "bg-[#C6A972] text-[#0A0A0B] font-medium"
-                : "text-[#9A968E] hover:text-[#F4F1EA]"
+                ? "bg-white text-black font-normal"
+                : "text-white/60 hover:text-white"
             }`}
             title="Crown Elevation View"
           >
@@ -984,13 +981,13 @@ export default function BespokeBouquet3D({
         </div>
 
         {/* Orbit & Zoom Controls */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#0A0A0B]/85 backdrop-blur-md border border-white/10">
+        <div className="flex items-center gap-1 p-1 bg-black/75 backdrop-blur-2xl border border-white/15 rounded-full">
           <button
             onClick={toggleAutoOrbit}
-            className={`p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70 ${
+            className={`p-2 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70 ${
               isAutoOrbit
-                ? "bg-[#C6A972] text-[#0A0A0B]"
-                : "text-[#9A968E] hover:text-[#F4F1EA]"
+                ? "bg-white text-black"
+                : "text-white/60 hover:text-white"
             }`}
             title={isAutoOrbit ? "Pause Auto-Rotation" : "Enable Auto-Rotation"}
             aria-label="Toggle Auto-Rotation"
@@ -999,7 +996,7 @@ export default function BespokeBouquet3D({
           </button>
           <button
             onClick={() => handleZoom(-0.4)}
-            className="p-1.5 text-[#9A968E] hover:text-[#F4F1EA] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
+            className="p-2 text-white/60 hover:text-white rounded-full transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
             title="Zoom In"
             aria-label="Zoom In"
           >
@@ -1007,7 +1004,7 @@ export default function BespokeBouquet3D({
           </button>
           <button
             onClick={() => handleZoom(0.4)}
-            className="p-1.5 text-[#9A968E] hover:text-[#F4F1EA] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
+            className="p-2 text-white/60 hover:text-white rounded-full transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
             title="Zoom Out"
             aria-label="Zoom Out"
           >
@@ -1017,10 +1014,10 @@ export default function BespokeBouquet3D({
       </div>
 
       {/* Subtle Studio Provenance Stamp */}
-      <div className="absolute bottom-4 left-4 z-20 pointer-events-none hidden sm:block">
-        <div className="flex items-center gap-2 text-[9px] font-sans tracking-[0.25em] uppercase text-[#9A968E]/60">
+      <div className="absolute bottom-6 left-6 z-20 pointer-events-none hidden sm:block">
+        <div className="flex items-center gap-3 text-[9px] font-sans tracking-[0.25em] uppercase text-white/40 font-light">
           <span>HYDERABAD STUDIO STAGE</span>
-          <span>&bull;</span>
+          <span>/</span>
           <span>REACTIVE LIGHTING ENGINE</span>
         </div>
       </div>

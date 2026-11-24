@@ -43,21 +43,21 @@ export interface TactileFiber {
 }
 
 export interface PaletteStageTheme {
-  atmosphereLabel: string;   // e.g. "WARM TRAVERTINE GALLERY"
+  atmosphereLabel: string;   // e.g. "WARM LIMESTONE GALLERY"
   bgCenterHex: string;       // Soft radial spotlight glow behind the bouquet
   bgEdgeHex: string;         // Outer studio vignette
-  bgFloorHex: string;        // Lower cyclorama reflection tone
+  bgFloorHex: string;        // Lower cyclorama floor reflection tone
   plinthHex: string;         // Pedestal material tint
   keyLightHex: string;       // Main directional shadow-casting side-raking key
-  keyIntensity: number;      // e.g. 2.8 - 3.6
+  keyIntensity: number;      // e.g. 2.8 - 3.8
   fillLightHex: string;      // Subtle opposite fill (kept low for deep contrast)
-  fillIntensity: number;     // e.g. 0.35 - 0.55
+  fillIntensity: number;     // e.g. 0.38 - 0.52
   rimLightHex: string;       // Crisp back-edge silhouette rim light
-  rimIntensity: number;      // e.g. 2.2 - 3.2
+  rimIntensity: number;      // e.g. 2.4 - 3.5
   hemiSkyHex: string;
   hemiGroundHex: string;
-  hemiIntensity: number;     // Kept low (0.28 - 0.42) so shadows between flowers stay rich
-  envIntensity: number;      // Kept low (0.25 - 0.38) so dark crevices don't wash out
+  hemiIntensity: number;     // Kept low (0.28 - 0.38) so shadows between flowers stay rich
+  envIntensity: number;      // Kept low (0.26 - 0.36) so crevices don't wash out
 }
 
 export interface ColorPalette {
@@ -113,6 +113,39 @@ export interface CraftsmanshipPillar {
   image: string;
 }
 
+export interface AtelierStory {
+  id: string;
+  number: string;
+  title: string;
+  subtitle: string;
+  tag: string;
+  lead: string;
+  body: string[];
+  pullquote: string;
+  image: string;
+}
+
+export interface BoutiqueItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: "FOR THE HOME" | "FOR EVENING" | "BOTANICAL OBJECTS";
+  priceINR: string;
+  priceNumeric: number;
+  dimensions: string;
+  fiberSpecs: string;
+  handcraftHours: string;
+  image: string;
+  edition: string;
+  description: string;
+}
+
+export interface PatronageFAQ {
+  question: string;
+  answer: string;
+  category: string;
+}
+
 export interface AtelierConfig {
   studioName: string;
   monogram: string;
@@ -120,7 +153,7 @@ export interface AtelierConfig {
   eyebrow: string;
   instagramUrl: string;
   instagramHandle: string;
-  whatsappConciergeNumber: string; // Replace with client's active WhatsApp number e.g. "+91XXXXXXXXXX"
+  whatsappConciergeNumber: string;
   location: string;
   founded: string;
   colophon: string;
@@ -133,7 +166,7 @@ export const ATELIER_CONFIG: AtelierConfig = {
   eyebrow: "BESPOKE HANDCRAFTED ATELIER",
   instagramUrl: "https://www.instagram.com/theweave_studio/",
   instagramHandle: "@theweave_studio",
-  whatsappConciergeNumber: "+919876543210", // Placeholder: swap with live phone number in international format
+  whatsappConciergeNumber: "+919876543210",
   location: "Hyderabad, India",
   founded: "MMXXIV",
   colophon: "Every commission is an indivisible dialogue between singular fiber provenance and deliberate hand tension.",
@@ -297,6 +330,185 @@ export const CRAFTSMANSHIP_PILLARS: CraftsmanshipPillar[] = [
   },
 ];
 
+export const ATELIER_STORIES: AtelierStory[] = [
+  {
+    id: "story-01",
+    number: "01",
+    title: "The Tension of 0.75mm Steel",
+    subtitle: "Why the human hand remains uncomputable in high-gauge crochet.",
+    tag: "METROLOGY & DISCIPLINE",
+    lead: "No industrial robotics exist that can recreate a single double-crochet loop through pre-existing fabric tension.",
+    body: [
+      "While modern flatbed knitting machines knit thousands of courses per minute, crochet remains completely impervious to mechanical automation. Every stitch requires inserting an angled hook through an existing tensile loop, rotating the shaft, catching the yarn feed, and drawing it back under calibrated muscle memory.",
+      "In our Hyderabad studio, our artisans work with polished 0.75mm to 2.5mm Japanese steel hooks. Over a 90-hour commission, an artisan's tension variation must not exceed 0.05 Newtons, ensuring that planar surfaces stay geometrically flat while sculptured curves hold structural self-support.",
+    ],
+    pullquote: "A single hook, a continuous filament, and eighty hours of unwavering physiological stillness.",
+    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=85&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "story-02",
+    number: "02",
+    title: "Long-Staple Giza Provenance",
+    subtitle: "Tracing our double-mercerized Egyptian fibers from river basin to hook.",
+    tag: "FIBER GENEALOGY",
+    lead: "True luxury is knowing the soil, sunshine, and salinity where each fiber strand took root.",
+    body: [
+      "Our core structural cords are spun exclusively from Giza 45 and Giza 88 Egyptian cotton, grown in the mineral-rich sediment of the Nile Delta. With staple lengths exceeding 38 millimeters, these fibers possess tensile strength twice that of conventional cotton.",
+      "The fibers undergo a double-mercerization process in cold caustic baths under tension, swelling the cell walls into cylindrical prisms that reflect light like silk while granting impervious resistance to pilling or surface fatigue across decades.",
+    ],
+    pullquote: "Living fibers that grow softer with every decade of human touch, rejecting the obsolescence of synthetic polymers.",
+    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=85&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "story-03",
+    number: "03",
+    title: "Sculpting Without Armatures",
+    subtitle: "Achieving monumental architectural volume through pure yarn density.",
+    tag: "STRUCTURAL FORM",
+    lead: "Cardboard stiffeners and plastic inserts have no place in fine art textiles.",
+    body: [
+      "Conventional luxury handbags rely upon internal plastic boards, bonded leather stiffeners, or metal frames to force fabric into cubic shapes. The Weave Studio fundamentally rejects this shortcut.",
+      "By calculating progressive stitch density shifts and compounding twisted post stitches, our totes and botanical vessels achieve rigid self-standing volume through structural tension alone. The piece stands erect when empty, yet retains the breathability and organic warmth of pure textile craft.",
+    ],
+    pullquote: "If a textile cannot support its own weight through stitch physics alone, the design has not yet earned its completion.",
+    image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=85&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "story-04",
+    number: "04",
+    title: "The Hyderabad Studio Ledger",
+    subtitle: "A private atelier in Banjara Hills cataloging every needle stroke in permanent ink.",
+    tag: "STUDIO LEDGER",
+    lead: "Every commissioned piece is permanently inscribed with an immutable archive serial number.",
+    body: [
+      "Founded in Hyderabad, The Weave Studio operates as an unhurried sanctuary of craft. Here, natural daylight pours into quiet workstations overlooking courtyard limestone, illuminating hundreds of individual skeins categorized by lot provenance and harvest year.",
+      "Upon completion of each commission, the master artisan signs our calfskin-bound studio ledger alongside the yarn lot codes, hook specifications, handcraft hours, and client dedication. A corresponding hand-engraved metal seal is sewn directly into the weave.",
+    ],
+    pullquote: "We do not manufacture seasonal collections. We commission generational heirlooms for those who understand permanence.",
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=85&w=1400&auto=format&fit=crop",
+  },
+];
+
+export const BOUTIQUE_ITEMS: BoutiqueItem[] = [
+  {
+    id: "boutique-01",
+    title: "The Nocturne Relief Cushion",
+    subtitle: "Architectural Loop Pile for Modern Living Spaces",
+    category: "FOR THE HOME",
+    priceINR: "₹18,500",
+    priceNumeric: 18500,
+    dimensions: "50cm × 50cm",
+    fiberSpecs: "High-Altitude Himalayan Merino Wool & Heavyweight Belgian Flax",
+    handcraftHours: "42 Hours",
+    image: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=85&w=1200&auto=format&fit=crop",
+    edition: "EDITION OF 12",
+    description: "Deep relief-knotted loops offering acoustic damping and tactile richness. Backed with Belgian slate linen and inset concealed zipper.",
+  },
+  {
+    id: "boutique-02",
+    title: "The Alabaster Table Runner",
+    subtitle: "Open-Gauge Architectural Textile for Dining Monoliths",
+    category: "FOR THE HOME",
+    priceINR: "₹24,000",
+    priceNumeric: 24000,
+    dimensions: "180cm × 38cm",
+    fiberSpecs: "100% Unbleached Belgian Flax Linen with Raw Selvedge",
+    handcraftHours: "54 Hours",
+    image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=85&w=1200&auto=format&fit=crop",
+    edition: "EDITION OF 08",
+    description: "Hand-tensioned lattice geometry engineered to lay perfectly flat over marble or timber without curling at the corners.",
+  },
+  {
+    id: "boutique-03",
+    title: "The Aurelia Micro Minaudière",
+    subtitle: "Sculpted Evening Clutch with Hand-Polished Brass Frame",
+    category: "FOR EVENING",
+    priceINR: "₹32,000",
+    priceNumeric: 32000,
+    dimensions: "20cm × 14cm × 6cm",
+    fiberSpecs: "Mercerized Giza Cord with Champagne Metallic Core",
+    handcraftHours: "68 Hours",
+    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=85&w=1200&auto=format&fit=crop",
+    edition: "EDITION OF 05",
+    description: "Rigid monolithic hexagonal geometry designed for black-tie gatherings. Includes detachable hand-twisted metallic cord strap.",
+  },
+  {
+    id: "boutique-04",
+    title: "The Solstice Gossamer Shawl",
+    subtitle: "Featherweight Evening Wrap with Hand-Knotted Macramé",
+    category: "FOR EVENING",
+    priceINR: "₹28,000",
+    priceNumeric: 28000,
+    dimensions: "210cm × 75cm",
+    fiberSpecs: "70% Belgian Flax Linen, 30% Grade-6A Mulberry Silk",
+    handcraftHours: "58 Hours",
+    image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=85&w=1200&auto=format&fit=crop",
+    edition: "EDITION OF 10",
+    description: "Airy Tunisian honeycomb weave that drapes with liquid grace. Folds into a compact travel pouch for transcontinental passage.",
+  },
+  {
+    id: "boutique-05",
+    title: "The Single Véridique Heritage Rose",
+    subtitle: "Permanent Sculptural Bloom in Blackened Stoneware Vessel",
+    category: "BOTANICAL OBJECTS",
+    priceINR: "₹16,500",
+    priceNumeric: 16500,
+    dimensions: "28cm (H) × 14cm (W)",
+    fiberSpecs: "Japanese Mercerized Paper Yarn & Brass Wire Veining",
+    handcraftHours: "28 Hours",
+    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=85&w=1200&auto=format&fit=crop",
+    edition: "NUMBERED ATELIER EDITION",
+    description: "An eternal rose crafted with 21 sculpted petals wired for bespoke positioning, anchored in a turned raw ceramic pedestal.",
+  },
+  {
+    id: "boutique-06",
+    title: "The Solitary Japanese Paper Iris",
+    subtitle: "Minimalist Botanical Study in Raw Alabaster Base",
+    category: "BOTANICAL OBJECTS",
+    priceINR: "₹19,000",
+    priceNumeric: 19000,
+    dimensions: "34cm (H) × 16cm (W)",
+    fiberSpecs: "Mino Washi Bark Yarn with Raw Silk Stamen",
+    handcraftHours: "34 Hours",
+    image: "https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?q=85&w=1200&auto=format&fit=crop",
+    edition: "NUMBERED ATELIER EDITION",
+    description: "Subtle paper-crisp petals with natural matte grain. Never fades, requiring zero water or natural light maintenance.",
+  },
+];
+
+export const PATRONAGE_FAQS: PatronageFAQ[] = [
+  {
+    category: "COMMISSIONING",
+    question: "What is the timeline for a bespoke commission?",
+    answer: "Given that every loop is formed by a single master artisan without machine intervention, commissions require between 3 to 8 weeks depending on the silhouette. A botanical study typically requires 3 to 5 weeks, an Aurelia tote 4 to 6 weeks, and an architectural tapestry 6 to 8 weeks. Rush requests may be accommodated through private consultation with the Concierge.",
+  },
+  {
+    category: "COMMISSIONING",
+    question: "How are yarn swatches dispatched for consultation?",
+    answer: "Prior to fiber casting, we dispatch our Atelier Swatch Folio to your address. The presentation box includes 5cm curated fiber discs in your requested palettes, allowing you to experience the tactile hand, density, and natural light reflection of Giza cotton, Belgian linen, and Himalayan merino in your own space.",
+  },
+  {
+    category: "LOGISTICS",
+    question: "How are pieces dispatched internationally?",
+    answer: "All finished commissions and Vault pieces are packed in custom cedar-lined presentation boxes wrapped in breathable organic muslin. International shipments are handled exclusively via insured white-glove courier services (DHL Express Medical/Luxury or FedEx International Priority) with tracked direct handover.",
+  },
+  {
+    category: "PRESERVATION",
+    question: "How do I care for, clean, or re-block an heirloom piece?",
+    answer: "Natural fibers thrive on gentle care. For routine preservation, store items in their provided cedar boxes away from direct dampness. Should an edition require re-shaping or cleaning after years of use, The Weave Studio offers complimentary lifetime inspection and steam-blocking in our Hyderabad studio for all registered patrons.",
+  },
+  {
+    category: "BESPOKE SERVICE",
+    question: "Can I commission custom color matching to interior swatches?",
+    answer: "Yes. Our Private Office accepts architectural material boards, Benjamin Moore/Pantone references, or physical fabric cuttings. Our artisans create custom low-impact mineral dye vats to achieve precise tonal alignment for your private residence or yacht interior.",
+  },
+  {
+    category: "SALON VISITS",
+    question: "How can I arrange an appointment at the Hyderabad atelier?",
+    answer: "Private salon appointments are held by prior arrangement at our Banjara Hills studio. Patrons are invited to view work in progress, inspect archive ledgers, and discuss bespoke proportions over single-origin teas. Please contact our Concierge via WhatsApp or inquiry form to reserve a private salon slot.",
+  },
+];
+
 export const BESPOKE_OPTIONS = {
   silhouettes: [
     {
@@ -384,151 +596,151 @@ export const BESPOKE_OPTIONS = {
     {
       id: "ivory-champagne",
       name: "Ivory & Champagne",
-      editorialLabel: "ATELIER LUMINOUS",
+      editorialLabel: "WARM LIMESTONE GALLERY",
       primaryHex: "#EFE9DD",
       secondaryHex: "#C6A972",
       narrative: "Luminous unbleached ivory blooms accented with brushed champagne gold fiber twists.",
       stageTheme: {
-        atmosphereLabel: "WARM TRAVERTINE GALLERY",
-        bgCenterHex: "#22201D",
-        bgEdgeHex: "#0B0A09",
-        bgFloorHex: "#181715",
-        plinthHex: "#191816",
-        keyLightHex: "#FFF4E0",
-        keyIntensity: 3.2,
-        fillLightHex: "#9FA8B3",
-        fillIntensity: 0.42,
-        rimLightHex: "#E8C88B",
-        rimIntensity: 2.8,
+        atmosphereLabel: "WARM LIMESTONE GALLERY",
+        bgCenterHex: "#2C2620",
+        bgEdgeHex: "#0C0B0A",
+        bgFloorHex: "#171411",
+        plinthHex: "#1B1815",
+        keyLightHex: "#FFF0D6",
+        keyIntensity: 3.1,
+        fillLightHex: "#8EA3BC",
+        fillIntensity: 0.40,
+        rimLightHex: "#F0CF90",
+        rimIntensity: 2.6,
         hemiSkyHex: "#EBE2D3",
         hemiGroundHex: "#181614",
-        hemiIntensity: 0.32,
-        envIntensity: 0.32,
+        hemiIntensity: 0.30,
+        envIntensity: 0.28,
       },
     },
     {
       id: "obsidian-champagne",
       name: "Obsidian & Champagne",
-      editorialLabel: "ATELIER NOCTURNE",
-      primaryHex: "#0A0A0B",
+      editorialLabel: "SMOKED GRAPHITE PAVILION",
+      primaryHex: "#181A22",
       secondaryHex: "#C6A972",
-      narrative: "Deepest nocturnal graphite offset by hand-twisted champagne metallic accents.",
+      narrative: "Lifted slate obsidian petals offset by hand-twisted champagne metallic accents.",
       stageTheme: {
-        atmosphereLabel: "NOCTURNE OBSIDIAN VAULT",
-        bgCenterHex: "#181A22",
-        bgEdgeHex: "#07080A",
-        bgFloorHex: "#0F1014",
-        plinthHex: "#121317",
-        keyLightHex: "#F5EADB",
-        keyIntensity: 3.6,
-        fillLightHex: "#6F8099",
-        fillIntensity: 0.38,
-        rimLightHex: "#DFBA73",
-        rimIntensity: 3.2,
+        atmosphereLabel: "SMOKED GRAPHITE PAVILION",
+        bgCenterHex: "#383D49",
+        bgEdgeHex: "#111319",
+        bgFloorHex: "#1C1E26",
+        plinthHex: "#24262E",
+        keyLightHex: "#FFFFFF",
+        keyIntensity: 3.8,
+        fillLightHex: "#9EB2CC",
+        fillIntensity: 0.52,
+        rimLightHex: "#FFE09E",
+        rimIntensity: 3.5,
         hemiSkyHex: "#D2D9E3",
         hemiGroundHex: "#0E1014",
-        hemiIntensity: 0.3,
-        envIntensity: 0.28,
+        hemiIntensity: 0.38,
+        envIntensity: 0.36,
       },
     },
     {
       id: "bordeaux-blush",
       name: "Bordeaux Velvet & Blush",
-      editorialLabel: "FLORAL DRAMA",
+      editorialLabel: "VELVET BORDEAUX SALON",
       primaryHex: "#5C1F2B",
       secondaryHex: "#D8B4A8",
       narrative: "Deep dramatic bordeaux petals paired with soft powdered blush rose undertones.",
       stageTheme: {
-        atmosphereLabel: "DUSK VELVET ATELIER",
-        bgCenterHex: "#24171A",
-        bgEdgeHex: "#0A0607",
-        bgFloorHex: "#160E10",
-        plinthHex: "#181013",
-        keyLightHex: "#FFF0E6",
-        keyIntensity: 3.4,
-        fillLightHex: "#9B8289",
-        fillIntensity: 0.4,
-        rimLightHex: "#EBB6A8",
-        rimIntensity: 3.0,
+        atmosphereLabel: "VELVET BORDEAUX SALON",
+        bgCenterHex: "#2E161C",
+        bgEdgeHex: "#0C0608",
+        bgFloorHex: "#180B0F",
+        plinthHex: "#1E1014",
+        keyLightHex: "#FFEBE4",
+        keyIntensity: 3.2,
+        fillLightHex: "#B4848B",
+        fillIntensity: 0.40,
+        rimLightHex: "#EAB49A",
+        rimIntensity: 2.8,
         hemiSkyHex: "#E8D1CB",
         hemiGroundHex: "#170E11",
-        hemiIntensity: 0.32,
-        envIntensity: 0.3,
+        hemiIntensity: 0.28,
+        envIntensity: 0.26,
       },
     },
     {
       id: "raw-ecru-alabaster",
       name: "Raw Ecru & Alabaster",
-      editorialLabel: "MINERAL PURITY",
+      editorialLabel: "ATELIER PLASTER DAYLIGHT",
       primaryHex: "#EAE5DC",
       secondaryHex: "#C8C0B2",
       narrative: "Unbleached natural field fibers preserving original organic flecks and tonal variations.",
       stageTheme: {
-        atmosphereLabel: "ALABASTER SCULPTURE COURT",
-        bgCenterHex: "#22211E",
-        bgEdgeHex: "#0B0A09",
-        bgFloorHex: "#171614",
-        plinthHex: "#1A1916",
-        keyLightHex: "#FFF8EE",
+        atmosphereLabel: "ATELIER PLASTER DAYLIGHT",
+        bgCenterHex: "#332D25",
+        bgEdgeHex: "#12100E",
+        bgFloorHex: "#1E1A15",
+        plinthHex: "#221E19",
+        keyLightHex: "#FFFBF0",
         keyIntensity: 3.0,
-        fillLightHex: "#8E959E",
-        fillIntensity: 0.44,
-        rimLightHex: "#D5C8B4",
-        rimIntensity: 2.6,
+        fillLightHex: "#A8A095",
+        fillIntensity: 0.42,
+        rimLightHex: "#EAD7B7",
+        rimIntensity: 2.4,
         hemiSkyHex: "#EDE7DC",
         hemiGroundHex: "#181715",
-        hemiIntensity: 0.34,
-        envIntensity: 0.34,
+        hemiIntensity: 0.32,
+        envIntensity: 0.28,
       },
     },
     {
       id: "moonlit-sage-slate",
       name: "Moonlit Sage & Slate",
-      editorialLabel: "BOTANICAL TRANQUILITY",
+      editorialLabel: "BOTANICAL CONSERVATORY",
       primaryHex: "#2A332F",
       secondaryHex: "#7E8C85",
       narrative: "Muted dry sage greens paired with damp slate for a tranquil organic harmony.",
       stageTheme: {
-        atmosphereLabel: "BOTANIC CONSERVATORY AT NIGHT",
-        bgCenterHex: "#17201D",
-        bgEdgeHex: "#060A08",
-        bgFloorHex: "#0E1412",
-        plinthHex: "#111815",
-        keyLightHex: "#EFF5F0",
+        atmosphereLabel: "BOTANICAL CONSERVATORY",
+        bgCenterHex: "#1D2C28",
+        bgEdgeHex: "#080E0C",
+        bgFloorHex: "#101916",
+        plinthHex: "#141E1B",
+        keyLightHex: "#ECF7F2",
         keyIntensity: 3.2,
-        fillLightHex: "#6E847B",
-        fillIntensity: 0.38,
-        rimLightHex: "#9FBFB0",
-        rimIntensity: 2.8,
+        fillLightHex: "#7D9B92",
+        fillIntensity: 0.42,
+        rimLightHex: "#C5E2D6",
+        rimIntensity: 2.7,
         hemiSkyHex: "#C5D6CC",
         hemiGroundHex: "#0C1310",
-        hemiIntensity: 0.3,
-        envIntensity: 0.28,
+        hemiIntensity: 0.30,
+        envIntensity: 0.26,
       },
     },
     {
       id: "deep-espresso-sienna",
       name: "Deep Espresso & Sienna",
-      editorialLabel: "VEGETAL HERITAGE",
+      editorialLabel: "AMBER SIENNA LOUNGE",
       primaryHex: "#221A18",
       secondaryHex: "#8A6250",
       narrative: "Earth pigments inspired by raw bark, roasted coffee bean, and terracotta pottery.",
       stageTheme: {
-        atmosphereLabel: "TERRACOTTA & SMOKED CEDAR",
-        bgCenterHex: "#241A16",
-        bgEdgeHex: "#0A0706",
-        bgFloorHex: "#16100D",
-        plinthHex: "#18120F",
-        keyLightHex: "#FFF1E4",
-        keyIntensity: 3.5,
-        fillLightHex: "#997B70",
-        fillIntensity: 0.4,
-        rimLightHex: "#DCA078",
+        atmosphereLabel: "AMBER SIENNA LOUNGE",
+        bgCenterHex: "#301F17",
+        bgEdgeHex: "#0E0907",
+        bgFloorHex: "#1A110D",
+        plinthHex: "#1F1612",
+        keyLightHex: "#FFE4C2",
+        keyIntensity: 3.4,
+        fillLightHex: "#B58168",
+        fillIntensity: 0.44,
+        rimLightHex: "#F0AC74",
         rimIntensity: 3.0,
         hemiSkyHex: "#E8D5CA",
         hemiGroundHex: "#17100D",
         hemiIntensity: 0.32,
-        envIntensity: 0.3,
+        envIntensity: 0.30,
       },
     },
   ] as ColorPalette[],
@@ -538,7 +750,7 @@ export const BESPOKE_OPTIONS = {
       id: "stoneware-vessel",
       name: "Blackened Stoneware Vessel",
       subtitle: "Matte Ceramic Architecture",
-      description: "Matte kiln-fired ceramic cylinder with gold hairline rim and weighted base.",
+      description: "Matte kiln-fired ceramic cylinder with thin white hairline rim and weighted base.",
       finishNote: "Hand-thrown coarse stoneware with volcanic slip glaze.",
     },
     {
@@ -691,4 +903,42 @@ export function createWhatsAppVaultLink(piece: VaultPiece): string {
     `I wish to confirm availability and arrange private acquisition for this piece.`;
 
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+}
+
+export function createWhatsAppBoutiqueInquiryLink(items: BoutiqueItem[], patronName?: string): string {
+  const number = ATELIER_CONFIG.whatsappConciergeNumber.replace(/[^0-9]/g, "");
+  const lines = [
+    `THE WEAVE STUDIO — BOUTIQUE INQUIRY LIST`,
+    `----------------------------------------`,
+    `Patron: ${patronName?.trim() || "Anonymous Patron"}`,
+    `Selected Items (${items.length}):`,
+    ...items.map(
+      (item, idx) =>
+        `${idx + 1}. ${item.title} (${item.priceINR}) [${item.edition}] - ${item.dimensions}`
+    ),
+    `----------------------------------------`,
+    `I would like to inquire regarding availability and direct handover for these curated boutique items.`,
+  ];
+
+  return `https://wa.me/${number}?text=${encodeURIComponent(lines.join("\n"))}`;
+}
+
+export function createWhatsAppConciergeLink(inquiry: {
+  name: string;
+  email?: string;
+  topic: string;
+  message: string;
+}): string {
+  const number = ATELIER_CONFIG.whatsappConciergeNumber.replace(/[^0-9]/g, "");
+  const lines = [
+    `THE WEAVE STUDIO — PRIVATE CONCIERGE INQUIRY`,
+    `----------------------------------------`,
+    `Patron: ${inquiry.name.trim() || "Anonymous Patron"}`,
+    `Topic: ${inquiry.topic}`,
+    inquiry.email ? `Email: ${inquiry.email}` : "",
+    `Message: ${inquiry.message.trim() || "I would like to request a private consultation."}`,
+    `----------------------------------------`,
+  ].filter(Boolean);
+
+  return `https://wa.me/${number}?text=${encodeURIComponent(lines.join("\n"))}`;
 }

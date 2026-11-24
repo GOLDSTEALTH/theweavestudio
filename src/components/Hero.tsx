@@ -1,162 +1,116 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowDown } from "lucide-react";
 import { ATELIER_CONFIG, HERO_IMAGE } from "@/data/atelier";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 import { LUXURY_EASE, MOTION_DURATIONS } from "@/lib/motion";
 
 export function Hero() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const { scrollTo } = useSmoothScroll();
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Compositor-only GPU transforms
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1.06, 1.15]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.65], ["0px", "-40px"]);
-
   return (
-    <section
-      ref={containerRef}
-      className="relative w-full h-[100svh] min-h-[640px] flex items-end justify-start overflow-hidden bg-[#0A0A0B]"
-    >
-      {/* Background Image with Ambient Zoom & Scroll Parallax */}
+    <section className="relative w-full h-[100svh] min-h-[680px] flex flex-col justify-between overflow-hidden bg-[#000000]">
+      {/* Background Architectural Canvas */}
       <motion.div
-        style={{
-          y: imageY,
-          scale: imageScale,
+        initial={{ scale: 1.08, opacity: 0.6 }}
+        animate={{ scale: 1, opacity: 0.85 }}
+        transition={{
+          duration: MOTION_DURATIONS.ceremonial,
+          ease: LUXURY_EASE,
         }}
-        className="absolute inset-0 w-full h-full will-change-transform"
+        className="absolute inset-0 z-0"
       >
         <Image
           src={HERO_IMAGE}
-          alt="The Weave Studio Textile Architecture"
+          alt="The Weave Studio Luxury Atelier"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center filter brightness-[0.72] contrast-[1.08]"
+          className="object-cover object-center filter brightness-[0.70] contrast-[1.08]"
         />
-
-        {/* Cinematic Multi-layered Dark Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/40 to-[#0A0A0B]/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0B]/90 via-[#0A0A0B]/30 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#0A0A0B_100%)] opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-black/60 pointer-events-none" />
       </motion.div>
 
-      {/* Hero Foreground Content */}
-      <motion.div
-        style={{
-          opacity: contentOpacity,
-          y: contentY,
-        }}
-        className="relative z-10 w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-16 sm:pb-24 lg:pb-32"
-      >
-        <div className="max-w-4xl space-y-6 sm:space-y-8">
-          {/* Micro-eyebrow */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: MOTION_DURATIONS.medium,
-              delay: 0.2,
-              ease: LUXURY_EASE,
-            }}
-            className="flex items-center gap-3 sm:gap-4"
-          >
-            <span className="w-8 h-[1px] bg-[#C6A972]/80" />
-            <span className="font-sans text-[10px] sm:text-[11px] tracking-[0.32em] uppercase text-[#C6A972] font-medium">
-              {ATELIER_CONFIG.eyebrow}
-            </span>
-          </motion.div>
+      {/* Top Spacer */}
+      <div className="h-20 sm:h-24" />
 
-          {/* Display Headline */}
+      {/* Hero Foreground Content */}
+      <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 w-full my-auto text-center space-y-6 sm:space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.2, ease: LUXURY_EASE }}
+          className="inline-flex items-center gap-3"
+        >
+          <span className="font-sans text-[10px] sm:text-[11px] tracking-[0.32em] uppercase text-white/70 font-light">
+            {ATELIER_CONFIG.eyebrow}
+          </span>
+        </motion.div>
+
+        <div className="overflow-hidden">
           <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
             transition={{
               duration: MOTION_DURATIONS.deliberate,
               delay: 0.35,
               ease: LUXURY_EASE,
             }}
-            className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-[#F4F1EA] font-light tracking-[-0.01em] leading-[1.06]"
+            className="font-sans text-4xl sm:text-6xl lg:text-[76px] font-light tracking-[0.18em] uppercase text-white leading-tight max-w-5xl mx-auto"
           >
-            Architecture in <br />
-            <span className="italic font-normal text-[#F4F1EA]/95">Every Loop.</span>
+            {ATELIER_CONFIG.tagline}
           </motion.h1>
-
-          {/* Subtitle / Philosophy */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: MOTION_DURATIONS.medium,
-              delay: 0.5,
-              ease: LUXURY_EASE,
-            }}
-            className="font-sans text-xs sm:text-sm text-[#9A968E] max-w-xl font-light leading-relaxed tracking-wide"
-          >
-            Hand-tensioned single-hook geometry and museum-grade natural fibers. Numbered commissions conceived as heirloom structures for architectural living.
-          </motion.p>
-
-          {/* Single Ghost Hairline CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: MOTION_DURATIONS.deliberate,
-              delay: 0.65,
-              ease: LUXURY_EASE,
-            }}
-            className="pt-2 sm:pt-4 flex flex-wrap items-center gap-6"
-          >
-            <button
-              onClick={() => scrollTo("#collections")}
-              className="group relative inline-flex items-center justify-center px-7 sm:px-9 py-3.5 sm:py-4 border border-[#F4F1EA]/20 bg-[#0A0A0B]/40 backdrop-blur-sm text-[#F4F1EA] hover:border-[#C6A972] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
-            >
-              <span className="font-sans text-[11px] tracking-[0.28em] uppercase font-light text-[#F4F1EA] group-hover:text-[#C6A972] transition-colors">
-                DISCOVER THE COLLECTION
-              </span>
-              <span className="absolute bottom-0 left-0 w-full h-[1px] bg-[#C6A972] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
-            </button>
-
-            <span className="font-sans text-[10px] tracking-[0.25em] text-[#9A968E]/60 uppercase hidden sm:inline">
-              {ATELIER_CONFIG.founded} / HYDERABAD
-            </span>
-          </motion.div>
         </div>
-      </motion.div>
 
-      {/* Minimal Vertical Hairline Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-8 right-8 sm:right-16 z-20 hidden md:flex flex-col items-center gap-3"
-      >
-        <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-[#9A968E]/75 [writing-mode:vertical-rl] rotate-180">
-          SCROLL
-        </span>
-        <div className="w-[1px] h-12 bg-white/10 relative overflow-hidden">
-          <motion.div
-            animate={{
-              y: ["-100%", "100%"],
-            }}
-            transition={{
-              repeat: Infinity,
-              duration: 2.2,
-              ease: "easeInOut",
-            }}
-            className="w-full h-1/2 bg-[#C6A972]"
-          />
-        </div>
-      </motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.65, ease: LUXURY_EASE }}
+          className="font-sans text-xs sm:text-sm font-light text-white/70 max-w-xl mx-auto leading-relaxed tracking-wide"
+        >
+          Specializing in bespoke commissions, architectural tapestries, and ready-to-ship numbered editions.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.85, ease: LUXURY_EASE }}
+          className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
+        >
+          <Link
+            href="/collections"
+            className="rounded-full border border-white/60 bg-transparent px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase text-white transition-all duration-500 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+          >
+            DISCOVER COLLECTIONS
+          </Link>
+          <Link
+            href="/bespoke/configure"
+            className="rounded-full border border-white/30 bg-transparent px-8 py-3.5 text-[11px] font-light tracking-[0.22em] uppercase text-white/70 transition-all duration-500 hover:border-white hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+          >
+            CONFIGURE IN 3D
+          </Link>
+        </motion.div>
+      </div>
+
+      {/* Bottom Architectural Bar */}
+      <div className="relative z-10 max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-16 pb-8 sm:pb-12 w-full flex items-center justify-between text-[10px] tracking-[0.25em] uppercase text-white/40 font-light">
+        <span>HYDERABAD BESPOKE ATELIER</span>
+
+        <button
+          onClick={() => scrollTo(window.innerHeight)}
+          className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
+          aria-label="Scroll to exploration"
+        >
+          <span className="hidden sm:inline">EXPLORE</span>
+          <ArrowDown strokeWidth={1.25} className="w-3.5 h-3.5 transition-transform group-hover:translate-y-1" />
+        </button>
+
+        <span>MMXXIV ARCHIVE</span>
+      </div>
     </section>
   );
 }

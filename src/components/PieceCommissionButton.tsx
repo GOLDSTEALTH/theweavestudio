@@ -15,13 +15,13 @@ export function PieceCommissionButton({ silhouetteId }: Props) {
 
   const handleCommissionClick = () => {
     setSelectedSilhouette(silhouetteId);
-    router.push("/#bespoke");
+    router.push(`/bespoke/configure?silhouette=${silhouetteId}`);
   };
 
   return (
     <button
       onClick={handleCommissionClick}
-      className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-[#C6A972] hover:bg-[#DFCA9B] text-[#0A0A0B] font-sans text-[11px] tracking-[0.28em] uppercase font-medium transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A972]/70"
+      className="w-full flex items-center justify-center gap-3 rounded-full border border-white/60 bg-transparent px-8 py-4 text-[11px] font-light tracking-[0.22em] uppercase text-white transition-all duration-500 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/70"
     >
       <span>COMMISSION THIS SILHOUETTE</span>
       <ArrowUpRight strokeWidth={1.25} className="w-4 h-4" />
