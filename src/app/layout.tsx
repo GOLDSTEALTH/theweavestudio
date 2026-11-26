@@ -40,6 +40,10 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "The Weave Studio" }],
   creator: "The Weave Studio",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
